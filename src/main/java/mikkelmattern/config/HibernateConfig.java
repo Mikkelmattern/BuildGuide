@@ -1,6 +1,6 @@
-package app.config;
+package mikkelmattern.config;
 
-import app.utils.Utils;
+import mikkelmattern.utils.Utils;
 import jakarta.persistence.EntityManagerFactory;
 
 import java.util.Properties;

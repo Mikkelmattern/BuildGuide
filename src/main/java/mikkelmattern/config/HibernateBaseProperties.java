@@ -1,4 +1,4 @@
-package app.config;
+package mikkelmattern.config;
 
 import java.util.Properties;
 

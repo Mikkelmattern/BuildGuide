@@ -1,12 +1,13 @@
 <persistence xmlns="https://jakarta.ee/xml/ns/persistence" version="3.0">
     <persistence-unit name="your-unit-name">
-        <class>app.entities.Unicorn</class>
+        <class>mikkelmattern.entities.Guide</class>
+        <class>mikkelmattern.entities.User</class>
 
 
         <properties>
-            <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/jpa_unicorn"/>
-            <property name="jakarta.persistence.jdbc.user" value="${DB_USERNAME}"/>
-            <property name="jakarta.persistence.jdbc.password" value="${DB_PASSWORD}"/>
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/build_guide"/>
+            <property name="jakarta.persistence.jdbc.user" value="build_guide_user"/>
+            <property name="jakarta.persistence.jdbc.password" value="k4MDDao9g7HL4h*2B7uZMw!KyT3TWU"/>
             <!-- dialect, hbm2ddl.auto, etc. -->
         </properties>
     </persistence-unit>

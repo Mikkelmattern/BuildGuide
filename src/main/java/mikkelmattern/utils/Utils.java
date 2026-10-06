@@ -1,6 +1,6 @@
-package app.utils;
+package mikkelmattern.utils;
 
-import app.exceptions.ApiException;
+import mikkelmattern.exceptions.ApiException;
 
 import java.io.IOException;
 import java.io.InputStream;
