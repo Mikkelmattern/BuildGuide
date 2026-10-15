@@ -6,6 +6,11 @@ import lombok.*;
 import java.time.Instant;
 import java.util.List;
 
+/**
+ * A guide written by a user, stored in the {@code guides} table.
+ * <p>
+ * {@code createdAt} and {@code updatedAt} are set automatically when the guide is saved or changed.
+ */
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -16,12 +21,13 @@ import java.util.List;
 @ToString
 public class Guide {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
     private String title;
 
+    // @Lob allows long text
     @Lob
     @Column(nullable = false)
     private String content;
@@ -31,22 +37,30 @@ public class Guide {
 
     private Instant updatedAt;
 
+    // The user who wrote the guide
     @ManyToOne
     @JoinColumn(name = "author_id", nullable = false)
     @ToString.Exclude
     private User author;
 
+    // Users who have saved this guide. Owned by User.savedGuides
     @ManyToMany(mappedBy = "savedGuides", fetch = FetchType.LAZY)
     @ToString.Exclude
     @Builder.Default
     private List<User> savedBy = new java.util.ArrayList<>();;
 
+    /**
+     * Sets {@code createdAt} and {@code updatedAt} to now. Called by JPA before the guide is first saved.
+     */
     @PrePersist
     void onCreate() {
         createdAt = Instant.now();
         updatedAt = createdAt;
     }
 
+    /**
+     * Sets {@code updatedAt} to now. Called by JPA before the guide is updated.
+     */
     @PreUpdate
     void onUpdate() {
         updatedAt = Instant.now();

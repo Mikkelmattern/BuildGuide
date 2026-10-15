@@ -8,12 +8,20 @@ import org.hibernate.service.ServiceRegistry;
 
 import java.util.Properties;
 
-// This class is just a factory that converts properties into an EntityManagerFactory
-
+/**
+ * Factory that turns Hibernate properties into an {@link EntityManagerFactory}.
+ */
 final class HibernateEmfBuilder {
 
     private HibernateEmfBuilder() {}
 
+    /**
+     * Builds an entity manager factory from the given properties, with all entities registered.
+     *
+     * @param props the Hibernate properties, including connection details
+     * @return the new entity manager factory
+     * @throws ExceptionInInitializerError if Hibernate fails to start, e.g. the database can't be reached
+     */
     static EntityManagerFactory build(Properties props) {
         try {
             Configuration configuration = new Configuration();
