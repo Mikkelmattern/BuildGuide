@@ -8,9 +8,9 @@ import java.util.List;
 
 
 /**
- * JPA implementation of {@link UserDao}, using the transaction helpers from {@link DAO}.
+ * JPA implementation of {@link IUserDao}, using the transaction helpers from {@link DAO}.
  */
-public class UserDaoImpl extends DAO implements UserDao {
+public class UserDaoImpl extends DAO implements IUserDao {
 
     private static UserDaoImpl instance;
 
@@ -89,6 +89,21 @@ public class UserDaoImpl extends DAO implements UserDao {
         return executeQuery(em -> em.createQuery(
                         "SELECT u FROM User u WHERE u.username = :username", User.class)
                 .setParameter("username", username)
+                .getResultStream()
+                .findFirst()
+                .orElse(null));
+    }
+
+    /**
+     * Finds a user by their email.
+     *
+     * @param email the email to look up
+     * @return the user, or {@code null} if none has that email
+     */
+    public User findUserByEmail(String email){
+        return executeQuery(em -> em.createQuery(
+                        "SELECT e FROM User e WHERE e.email = :email", User.class)
+                .setParameter("email", email)
                 .getResultStream()
                 .findFirst()
                 .orElse(null));

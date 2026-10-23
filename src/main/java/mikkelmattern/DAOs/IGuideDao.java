@@ -2,10 +2,12 @@ package mikkelmattern.DAOs;
 
 import mikkelmattern.entities.Guide;
 
+import java.util.List;
+
 /**
  * Database operations for {@link Guide}s.
  */
-public interface GuideDao {
+public interface IGuideDao {
 
     /**
      * Finds a guide by its id.
@@ -37,4 +39,8 @@ public interface GuideDao {
      * @return {@code true} if the guide was deleted, {@code false} if it didn't exist
      */
     public boolean delete(Guide guide);
+
+    public List<Guide> getAll();
+
+    public List<Guide> findByAuthorId(long userId);
 }

@@ -2,12 +2,13 @@ package mikkelmattern.routes;
 
 import io.javalin.apibuilder.EndpointGroup;
 import mikkelmattern.controller.UserController;
-import mikkelmattern.security.Role;
+import mikkelmattern.enums.Role;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
 
 /**
- * Routes for users under {@code /users}, and the role each one requires.
+ * Routes for logging in under {@code /auth} and for users under {@code /users},
+ * and the roles each one requires.
  */
 public class UserRoutes implements IRoutes {
 
@@ -16,21 +17,24 @@ public class UserRoutes implements IRoutes {
     /**
      * Creates the user routes.
      *
-     * @param guideController the controller that handles the requests
+     * @param userController the controller that handles the requests
      */
-    public UserRoutes(UserController guideController) {
-        this.userController = guideController;
+    public UserRoutes(UserController userController) {
+        this.userController = userController;
     }
 
     /**
      * Returns the user routes:
      * <ul>
+     *     <li>{@code POST /auth/login} - log in and get a JWT (anyone)</li>
+     *     <li>{@code GET /auth/me} - the logged-in user (any logged-in user)</li>
      *     <li>{@code GET /users} - all users (admin)</li>
      *     <li>{@code POST /users} - create a user (anyone)</li>
      *     <li>{@code GET /users/{id}} - one user (admin)</li>
-     *     <li>{@code PUT /users/{id}} - update a user (user)</li>
-     *     <li>{@code DELETE /users/{id}} - delete a user (admin)</li>
-     *     <li>{@code POST /auth/login} - log in and get a JWT (anyone)</li>
+     *     <li>{@code PUT /users/{id}} - update a user (the user themself or an admin)</li>
+     *     <li>{@code DELETE /users/{id}} - delete a user (the user themself or an admin)</li>
+     *     <li>{@code POST /users/{id}/roles/{role}} - give a user a role (admin)</li>
+     *     <li>{@code DELETE /users/{id}/roles/{role}} - remove a role from a user (admin)</li>
      * </ul>
      *
      * @return the endpoint group to register
@@ -40,14 +44,19 @@ public class UserRoutes implements IRoutes {
         return () -> {
             path("auth", () -> {
                 post("login", userController::login, Role.ANYONE);
+                get("me", userController::me, Role.USER, Role.AUTHOR, Role.ADMIN);
             });
             path("users", () -> {
                 get(userController::getAllUsers, Role.ADMIN);
                 post(userController::createUser, Role.ANYONE);
                 path("{id}", () -> {
                     get(userController::getUserById, Role.ADMIN);
-                    put(userController::updateUser, Role.USER);
-                    delete(userController::deleteUser, Role.ADMIN, Role.USER);
+                    put(userController::updateUser, Role.USER, Role.ADMIN);
+                    delete(userController::deleteUser, Role.USER, Role.ADMIN);
+                    path("roles/{role}", () -> {
+                        post(userController::addRole, Role.ADMIN);
+                        delete(userController::removeRole, Role.ADMIN);
+                    });
                 });
             });
         };

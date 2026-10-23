@@ -5,7 +5,7 @@ import io.javalin.http.HandlerType;
 import io.javalin.security.RouteRole;
 import mikkelmattern.exceptions.ApiException;
 import mikkelmattern.security.AuthUser;
-import mikkelmattern.security.Role;
+import mikkelmattern.enums.Role;
 import mikkelmattern.security.TokenService;
 import org.jetbrains.annotations.NotNull;
 
@@ -71,8 +71,8 @@ public class SecurityController implements ISecurityController {
      * the matched route allows.
      * <p>
      * Must run after {@link #authenticate(Context)}, since it reads the {@link AuthUser}
-     * stored on the context under {@code "user"}. Open routes ({@link Role#ANYONE}) are let
-     * through without a check.
+     * stored on the context under {@code "user"}. Open routes ({@link Role#ANYONE}) and CORS
+     * preflight requests ({@code OPTIONS}) are let through without a check.
      *
      * @param ctx the Javalin context for the current request
      * @throws ApiException with status 401 if no authenticated user is on the context,
@@ -80,8 +80,9 @@ public class SecurityController implements ISecurityController {
      */
     @Override
     public void authorize(@NotNull Context ctx) {
-        // 1. Open routes need no role check
-        if (isOpenRoute(ctx)) return;
+        // 1. Open routes and CORS preflight requests need no role check,
+        //    since authenticate didn't store a user for them
+        if (isOpenRoute(ctx) || ctx.method() == HandlerType.OPTIONS) return;
 
         // 2. Get the user that authenticate stored on the context
         AuthUser user = ctx.attribute("user");

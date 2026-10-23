@@ -1,5 +1,7 @@
 package mikkelmattern.security;
 
+import mikkelmattern.enums.Role;
+
 import java.util.Set;
 
 /**

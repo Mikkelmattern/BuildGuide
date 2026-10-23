@@ -2,6 +2,7 @@ package mikkelmattern.security;
 
 import io.javalin.validation.ValidationException;
 import mikkelmattern.entities.User;
+import mikkelmattern.enums.Role;
 
 /**
  * Data access for security: logging in, registering users and managing their roles.

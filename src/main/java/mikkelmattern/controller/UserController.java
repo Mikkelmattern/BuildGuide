@@ -67,6 +67,42 @@ public class UserController {
     }
 
     /**
+     * Returns the logged-in user as JSON, read fresh from the database by the id in the token.
+     * Handles {@code GET /auth/me}.
+     *
+     * @param ctx the Javalin context for the current request; the logged-in {@link AuthUser}
+     *            is read from the attribute {@code "user"}
+     */
+    public void me(@NotNull Context ctx) {
+        AuthUser authUser = ctx.attribute("user");
+        ctx.json(userService.getUserDTOByID(authUser.id()));
+    }
+
+    /**
+     * Gives the user with the {@code id} path parameter the role in the {@code role} path parameter,
+     * and returns the updated user as JSON. Handles {@code POST /users/{id}/roles/{role}}.
+     *
+     * @param ctx the Javalin context for the current request
+     */
+    public void addRole(@NotNull Context ctx) {
+        long id = ctx.pathParamAsClass("id", Long.class).get();
+        ctx.json(userService.addRole(id, ctx.pathParam("role")));
+    }
+
+    /**
+     * Removes the role in the {@code role} path parameter from the user with the {@code id}
+     * path parameter, and returns the updated user as JSON. Handles {@code DELETE /users/{id}/roles/{role}}.
+     *
+     * @param ctx the Javalin context for the current request; the logged-in {@link AuthUser}
+     *            is read from the attribute {@code "user"}
+     */
+    public void removeRole(@NotNull Context ctx) {
+        long id = ctx.pathParamAsClass("id", Long.class).get();
+        AuthUser authUser = ctx.attribute("user");
+        ctx.json(userService.removeRole(id, ctx.pathParam("role"), authUser));
+    }
+
+    /**
      * Returns one user as JSON, looked up by the {@code id} path parameter.
      * Handles {@code GET /users/{id}}.
      *

@@ -3,6 +3,7 @@ package mikkelmattern.DTOs;
 import lombok.Builder;
 
 import java.time.Instant;
+import java.util.List;
 
 /**
  * A guide as sent to and from the API.
@@ -11,7 +12,7 @@ import java.time.Instant;
  *
  * @param id             the guide's id
  * @param title          the guide's title
- * @param content        the guide's text
+ * @param nodes          the guide's top-level nodes, each with its children
  * @param createdAt      when the guide was created
  * @param updatedAt      when the guide was last changed
  * @param authorId       the id of the user who wrote the guide
@@ -21,7 +22,7 @@ import java.time.Instant;
 public record GuideDTO(
         Long id,
         String title,
-        String content,
+        List<NodeDTO> nodes,
         Instant createdAt,
         Instant updatedAt,
         Long authorId,

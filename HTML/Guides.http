@@ -1,0 +1,53 @@
+@url = http://localhost:7070/api
+
+
+### --- SETUP: run these first ---
+
+### Create author
+POST {{url}}/users
+Content-Type: application/json
+
+{ "username": "author", "email": "mini0001@stud.ek.dk", "password": "test123" }
+
+### Create other user
+POST {{url}}/users
+Content-Type: application/json
+
+{ "username": "otheruser", "email": "mini0002@stud.ek.dk", "password": "test123" }
+
+### Create admin (becomes admin via the roles endpoint or the database)
+POST {{url}}/users
+Content-Type: application/json
+
+{ "username": "admin",  "email": "mini0003@stud.ek.dk", "password": "test123" }
+
+### Login as author
+POST {{url}}/auth/login
+Content-Type: application/json
+
+{ "username": "author",  "email": "mini0001@stud.ek.dk", "password": "test123" }
+
+> {% client.global.set("authorToken", response.body.token); %}
+
+### Login as another user (not the author)
+POST {{url}}/auth/login
+Content-Type: application/json
+
+{ "username": "otheruser",  "email": "mini0002@stud.ek.dk", "password": "test123" }
+
+> {% client.global.set("otherToken", response.body.token); %}
+
+### Login as admin
+POST {{url}}/auth/login
+Content-Type: application/json
+
+{ "username": "admin",  "email": "mini0003@stud.ek.dk", "password": "test123" }
+
+> {% client.global.set("adminToken", response.body.token); %}
+
+### All guides
+GET {{url}}/guides
+Authorization: Bearer {{authorToken}}
+Content-Type: application/json
+
+{ "title": "Elden Ring: 100% route" }

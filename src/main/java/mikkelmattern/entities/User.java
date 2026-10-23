@@ -3,7 +3,7 @@ package mikkelmattern.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import mikkelmattern.security.ISecurityUser;
-import mikkelmattern.security.Role;
+import mikkelmattern.enums.Role;
 import org.mindrot.jbcrypt.BCrypt;
 
 

@@ -5,14 +5,12 @@ import jakarta.persistence.EntityManagerFactory;
 import mikkelmattern.entities.Guide;
 
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * JPA implementation of {@link GuideDao}.
+ * JPA implementation of {@link IGuideDao}.
  */
-public class GuideDaoImpl implements GuideDao {
-    private final EntityManagerFactory emf;
+public class GuideDaoImpl extends DAO implements IGuideDao {
 
     /**
      * Creates a guide DAO that uses the given entity manager factory.
@@ -20,7 +18,8 @@ public class GuideDaoImpl implements GuideDao {
      * @param emf the factory used to create entity managers
      */
     public GuideDaoImpl(EntityManagerFactory emf) {
-        this.emf = emf;
+        super(emf);
+
     }
 
     @Override
@@ -63,28 +62,27 @@ public class GuideDaoImpl implements GuideDao {
     }
 
     /**
+     * Finds all guides.
+     *
+     * @return every guide in the database
+     */
+    @Override
+    public List<Guide> getAll() {
+        return executeQuery(em -> em.createQuery("SELECT g FROM Guide g", Guide.class).getResultList());
+    }
+
+    /**
      * Finds all guides written by a user.
      *
      * @param userId the author's id
      * @return the author's guides, or an empty list if they have none
      */
+    @Override
     public List<Guide> findByAuthorId(long userId) {
         return executeQuery(em -> {
             return em.createQuery("SELECT g FROM Guide g WHERE g.author.id = :userId", Guide.class)
                     .setParameter("userId", userId)
                     .getResultList();
-        });
-    }
-    /**
-     * Runs an action that changes the database inside a transaction.
-     * The transaction is committed if the action succeeds and rolled back if it throws.
-     *
-     * @param action the work to do with the entity manager
-     */
-    private void executeUpdate(Consumer<EntityManager> action) {
-        executeUpdateWithResult(em -> {
-            action.accept(em);
-            return null;
         });
     }
 
@@ -97,7 +95,7 @@ public class GuideDaoImpl implements GuideDao {
      * @return the result of the action
      */
     private <R> R executeUpdateWithResult(Function<EntityManager, R> action) {
-        EntityManager em = emf.createEntityManager();
+        EntityManager em = super.emf.createEntityManager();
         try {
             em.getTransaction().begin();
             R result = action.apply(em);
@@ -111,19 +109,6 @@ public class GuideDaoImpl implements GuideDao {
             throw e;
         } finally {
             em.close();
-        }
-    }
-
-    /**
-     * Runs a read-only action and returns its result. No transaction is used.
-     *
-     * @param action the query to run
-     * @param <R>    the type of the result
-     * @return the result of the action
-     */
-    private <R> R executeQuery(Function<EntityManager, R> action) {
-        try (EntityManager em = emf.createEntityManager()) {
-            return action.apply(em);
         }
     }
 

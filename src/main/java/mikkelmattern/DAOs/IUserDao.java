@@ -2,10 +2,12 @@ package mikkelmattern.DAOs;
 
 import mikkelmattern.entities.User;
 
+import java.util.List;
+
 /**
  * Database operations for {@link User}s.
  */
-public interface UserDao {
+public interface IUserDao {
 
     /**
      * Finds a user by their id.
@@ -37,5 +39,11 @@ public interface UserDao {
      * @return the user that was passed in
      */
     public User delete(User user);
+
+    public List<User> getAll();
+
+    public User findUserByName(String username);
+
+    public User findUserByEmail(String email);
 
 }

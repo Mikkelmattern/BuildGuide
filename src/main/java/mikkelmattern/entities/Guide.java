@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,10 +28,10 @@ public class Guide {
     @Column(nullable = false)
     private String title;
 
-    // @Lob allows long text
-    @Lob
-    @Column(nullable = false)
-    private String content;
+    @OneToMany(mappedBy = "guide", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    @ToString.Exclude
+    private List<Node> nodes = new ArrayList<>();   // all nodes in this guide
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
@@ -47,7 +48,7 @@ public class Guide {
     @ManyToMany(mappedBy = "savedGuides", fetch = FetchType.LAZY)
     @ToString.Exclude
     @Builder.Default
-    private List<User> savedBy = new java.util.ArrayList<>();;
+    private List<User> savedBy = new java.util.ArrayList<>();
 
     /**
      * Sets {@code createdAt} and {@code updatedAt} to now. Called by JPA before the guide is first saved.
@@ -64,6 +65,11 @@ public class Guide {
     @PreUpdate
     void onUpdate() {
         updatedAt = Instant.now();
+    }
+
+    public void addNode(Node node){
+        nodes.add(node);
+        node.setGuide(this);
     }
 
 

@@ -19,5 +19,7 @@ final class EntityRegistry {
         // TODO: Add more entities here...
         configuration.addAnnotatedClass(User.class);
         configuration.addAnnotatedClass(Guide.class);
+        configuration.addAnnotatedClass(Node.class);
+        configuration.addAnnotatedClass(Reveal.class);
     }
 }

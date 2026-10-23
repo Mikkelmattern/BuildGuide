@@ -1,16 +1,19 @@
 package mikkelmattern;
 
 import jakarta.persistence.EntityManagerFactory;
+import mikkelmattern.DAOs.*;
 import mikkelmattern.config.ApplicationConfig;
 import mikkelmattern.config.HibernateConfig;
-import mikkelmattern.DAOs.UserDaoImpl;
+import mikkelmattern.controller.GuideController;
 import mikkelmattern.controller.UserController;
 import mikkelmattern.entities.User;
+import mikkelmattern.routes.GuideRoutes;
 import mikkelmattern.routes.UserRoutes;
-import mikkelmattern.security.Role;
+import mikkelmattern.enums.Role;
 import mikkelmattern.security.SecurityService;
 import mikkelmattern.security.TokenService;
 import mikkelmattern.security.controller.SecurityController;
+import mikkelmattern.services.GuideService;
 import mikkelmattern.services.UserService;
 import mikkelmattern.utils.Utils;
 
@@ -27,18 +30,25 @@ public class Main {
     public static void main(String[] args) {
         // Database and DAO
         EntityManagerFactory entityManagerFactory = HibernateConfig.getEntityManagerFactory();
-        UserDaoImpl userDaoImpl = new UserDaoImpl(entityManagerFactory);
+        IUserDao userDao = new UserDaoImpl(entityManagerFactory);
+        IGuideDao guideDao = new GuideDaoImpl(entityManagerFactory);
+        INodeDao nodeDao = new NodeDaoImpl(entityManagerFactory);
+        IRevealDao revealDao = new RevealDaoImpl(entityManagerFactory);
 
         // One TokenService, shared by both sides so tokens are signed and verified with the same secret
         String secret = Utils.getPropertyValue("SECRET_KEY", "config.properties");
         TokenService tokenService = new TokenService(secret);
-        SecurityService securityService = new SecurityService(userDaoImpl, tokenService);        // creates tokens
+        SecurityService securityService = new SecurityService(userDao, tokenService);        // creates tokens
         SecurityController securityController = new SecurityController(tokenService);           // verifies tokens
 
         // Services, controllers and routes
-        UserService userService = new UserService(userDaoImpl, securityService);
+        UserService userService = new UserService(userDao, securityService);
         UserController userController = new UserController(userService, securityService);
         UserRoutes userRoutes = new UserRoutes(userController);
+
+        GuideService guideService = new GuideService(guideDao, userDao, securityService, nodeDao, revealDao);
+        GuideController guideController = new GuideController(guideService);
+        GuideRoutes guideRoutes = new GuideRoutes(guideController);
 
         // Test user (hbm2ddl.auto is "create", so the tables are empty on every start)
         User user = User.builder()
@@ -50,11 +60,12 @@ public class Main {
         user.addRole(Role.ADMIN);
         user.addRole(Role.USER);
 
-        userDaoImpl.save(user);
+        userDao.save(user);
 
         // Start the server
         new ApplicationConfig(securityController)
                 .route(userRoutes.getRoutes())
+                .route(guideRoutes.getRoutes())
                 .cors()
                 .security()
                 .apiExceptions()

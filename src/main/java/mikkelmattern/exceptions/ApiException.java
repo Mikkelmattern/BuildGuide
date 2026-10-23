@@ -14,7 +14,8 @@ public class ApiException extends RuntimeException {
     private static final Logger logger = LoggerFactory.getLogger(ApiException.class);
 
     /**
-     * Creates and logs an API exception.
+     * Creates and logs an API exception. Client errors (4xx) are logged as warnings,
+     * since they are part of normal use, and server errors (5xx) as errors.
      *
      * @param code the HTTP status code, e.g. 401 or 404
      * @param msg  the message to send to the client
@@ -22,7 +23,11 @@ public class ApiException extends RuntimeException {
     public ApiException(int code, String msg){
         super(msg);
         this.code = code;
-        logger.error("ApiException (code={}): {}", code, msg);
+        if (code >= 500) {
+            logger.error("ApiException (code={}): {}", code, msg);
+        } else {
+            logger.warn("ApiException (code={}): {}", code, msg);
+        }
     }
 
     /**

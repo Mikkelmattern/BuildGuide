@@ -11,7 +11,7 @@ import java.util.function.Function;
  * and handle transactions.
  */
 public class DAO {
-    private final EntityManagerFactory emf;
+    final EntityManagerFactory emf;
 
     /**
      * Creates a DAO that uses the given entity manager factory.

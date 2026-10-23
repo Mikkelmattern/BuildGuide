@@ -4,47 +4,44 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="30ccf195-beee-451c-b423-c20e3c2031d1" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Build Guide — User Stories.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/HTML/Users.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/DAO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DTOs/UserInDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DTOs/UserOutDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/config/ApplicationConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/controller/UserController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/mappers/IMapper.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/routes/IRoutes.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/routes/UserRoutes.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/security/AuthUser.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/security/ISecurityDAO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/security/ISecurityUser.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/security/Role.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/security/SecurityService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/security/TokenService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/security/controller/ISecurityController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/security/controller/SecurityController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+    <list default="true" id="30ccf195-beee-451c-b423-c20e3c2031d1" name="Changes" comment="Added entire login flow with BCrypt hashing of password and signed tokens">
+      <change afterPath="$PROJECT_DIR$/HTML/Guides.http" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/HTML/Users.http" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/INodeDao.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/IRevealDao.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/NodeDaoImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/RevealDaoImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DTOs/GuideSummaryDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DTOs/NodeDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/entities/Node.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/entities/Reveal.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/enums/ReadingMode.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/populate/AdminSeeder.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/records/GuideRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/HTML/Users.html" beforeDir="false" afterPath="$PROJECT_DIR$/HTML/Users.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/DTO/GuideDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DTOs/GuideDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/DTO/UserDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/DAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/DAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/GuideDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/IGuideDao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/GuideDaoImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/GuideDaoImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/UserDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/IUserDao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/UserDaoImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/UserDaoImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/DTOs/GuideDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DTOs/GuideDTO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/config/ApplicationConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/config/ApplicationConfig.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/config/EntityRegistry.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/config/EntityRegistry.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/config/HibernateBaseProperties.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/config/HibernateBaseProperties.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/config/HibernateConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/config/HibernateConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/config/HibernateEmfBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/config/HibernateEmfBuilder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/dao/GuideDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/GuideDao.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/dao/GuideDaoImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/GuideDaoImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/dao/UserDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/UserDao.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/dao/UserDaoImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/UserDaoImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/controller/UserController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/entities/Guide.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/entities/Guide.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/entities/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/entities/User.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/exceptions/ApiException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/exceptions/ApiException.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/mappers/GuideMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/mappers/GuideMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/mappers/UserMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/mappers/UserMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/routes/UserRoutes.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/routes/UserRoutes.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/security/ISecurityDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/security/ISecurityDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/security/ISecurityUser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/security/ISecurityUser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/security/Role.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/enums/Role.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/security/SecurityService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/security/SecurityService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/security/controller/SecurityController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/security/controller/SecurityController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/services/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/services/UserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/utils/Populator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/utils/Populator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/utils/Utils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/utils/Utils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/config.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/config.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -54,6 +51,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Record" />
+        <option value="Enum" />
         <option value="Interface" />
         <option value="Class" />
       </list>
@@ -62,17 +61,24 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "Mikkelmattern"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Mikkelmattern&quot;
   }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Mikkelmattern/BuildGuide.git&quot;,
+    &quot;accountId&quot;: &quot;c6902be5-378a-4251-bdfc-e34e6680b828&quot;
+  }
+}</component>
+  <component name="HttpClientOnboardingState"><![CDATA[{
+  "isOnboardingCommentShown": true
 }]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Mikkelmattern/BuildGuide.git",
-    "accountId": "c6902be5-378a-4251-bdfc-e34e6680b828"
-  }
+  <component name="KubernetesApiPersistence"><![CDATA[{}]]></component>
+  <component name="KubernetesApiProvider"><![CDATA[{
+  "isMigrated": true
 }]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 0
@@ -85,6 +91,11 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Application.Main.executor": "Run",
+    "HTTP Request.All in Guides.executor": "Run",
+    "HTTP Request.All in Users.executor": "Run",
+    "HTTP Request.Users | Get all users.executor": "Run",
+    "HTTP Request.Users | Get own profile.executor": "Run",
+    "JavaScript Debug.Guides.html.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
@@ -121,7 +132,23 @@
       <recent name="mikkelmattern.exceptions" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunDashboard">
+    <option name="configurationStatuses">
+      <map>
+        <entry key="HttpClient.HttpRequestRunConfigurationType">
+          <value>
+            <map>
+              <entry key="All in Guides" value="STOPPED" />
+              <entry key="All in Users" value="STOPPED" />
+              <entry key="Users | Get all users" value="STOPPED" />
+              <entry key="Users | Get own profile" value="STOPPED" />
+            </map>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="RunManager" selected="Application.Main">
     <configuration name="Main" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="mikkelmattern.Main" />
       <module name="build-guide-project (1)" />
@@ -129,6 +156,26 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="All in Guides" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" path="$PROJECT_DIR$/HTML/Guides.http">
+      <method v="2" />
+    </configuration>
+    <configuration name="All in Users" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" path="$PROJECT_DIR$/HTML/Users.http">
+      <method v="2" />
+    </configuration>
+    <configuration name="Users | Get all users" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/HTML/Users.http" executionIdentifier="Get all users" index="8" runType="Run single request">
+      <method v="2" />
+    </configuration>
+    <configuration name="Users | Get own profile" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/HTML/Users.http" executionIdentifier="Get own profile" index="7" runType="Run single request">
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="HTTP Request.Users | Get all users" />
+        <item itemvalue="HTTP Request.All in Users" />
+        <item itemvalue="HTTP Request.Users | Get own profile" />
+        <item itemvalue="HTTP Request.All in Guides" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
@@ -147,11 +194,25 @@
       <updated>1787324805744</updated>
       <workItem from="1787324807367" duration="28840000" />
       <workItem from="1790151521601" duration="662000" />
-      <workItem from="1791831742806" duration="5687000" />
+      <workItem from="1791831742806" duration="9153000" />
+      <workItem from="1792405158334" duration="24965000" />
     </task>
+    <task id="LOCAL-00001" summary="Added entire login flow with BCrypt hashing of password and signed tokens">
+      <option name="closed" value="true" />
+      <created>1792054933258</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1792054933258</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Added entire login flow with BCrypt hashing of password and signed tokens" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added entire login flow with BCrypt hashing of password and signed tokens" />
   </component>
 </project>

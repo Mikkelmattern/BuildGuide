@@ -8,9 +8,8 @@ import io.javalin.config.JavalinConfig;
 import io.javalin.http.staticfiles.Location;
 import io.javalin.plugin.bundled.CorsPluginConfig;
 import mikkelmattern.exceptions.ApiException;
-import mikkelmattern.security.Role;
+import mikkelmattern.enums.Role;
 import mikkelmattern.security.controller.ISecurityController;
-import mikkelmattern.security.controller.SecurityController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

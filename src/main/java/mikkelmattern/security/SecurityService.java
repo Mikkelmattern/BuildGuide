@@ -1,5 +1,6 @@
 package mikkelmattern.security;
 
+import mikkelmattern.DAOs.IUserDao;
 import mikkelmattern.DAOs.UserDaoImpl;
 import mikkelmattern.DTOs.UserOutDTO;
 import mikkelmattern.entities.User;
@@ -11,7 +12,7 @@ import mikkelmattern.mappers.UserMapper;
  */
 public class SecurityService {
 
-    private final UserDaoImpl userDao;
+    private final IUserDao userDao;
     private final TokenService tokenService;
     private final UserMapper userMapper = new UserMapper();
 
@@ -22,7 +23,7 @@ public class SecurityService {
      * @param tokenService the service used to create tokens; must be the same one the
      *                     security controller verifies with, so both use the same secret
      */
-    public SecurityService(UserDaoImpl userDao, TokenService tokenService) {
+    public SecurityService(IUserDao userDao, TokenService tokenService) {
         this.userDao = userDao;
         this.tokenService = tokenService;
     }
@@ -59,10 +60,11 @@ public class SecurityService {
      *
      * @param user     the user being accessed
      * @param authUser the logged-in user making the request
-     * @return {@code true} if the usernames match, otherwise {@code false}
+     * @return {@code true} if the ids match, otherwise {@code false}
      */
     private boolean verifyPersonalAccess(User user, AuthUser authUser) {
-        return user.getUsername().equals(authUser.username());
+        // Compares ids, not usernames, since a username can change while the token still holds the old one
+        return user.getId().equals(authUser.id());
     }
 
     /**
@@ -76,16 +78,16 @@ public class SecurityService {
     }
 
     /**
-     * Checks that the logged-in user may change or delete {@code user}:
-     * either it is their own account, or they are an admin.
+     * Checks that the logged-in user may change or delete something owned by {@code user},
+     * such as their account or a guide they wrote: either they are that user, or they are an admin.
      *
-     * @param user     the user being accessed
+     * @param user     the owner of what is being accessed
      * @param authUser the logged-in user making the request
-     * @throws ApiException with status 403 if the user is neither the account owner nor an admin
+     * @throws ApiException with status 403 if the user is neither the owner nor an admin
      */
     public void verifyAccess(User user, AuthUser authUser) {
         if (!(verifyAdminAccess(authUser) || verifyPersonalAccess(user, authUser)))
-            throw new ApiException(403, "No access to delete others accounts");
+            throw new ApiException(403, "You can only change your own data");
     }
 
 }

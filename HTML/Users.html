@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>User API Tests</title>
+    <style>
+        :root {
+            --bg: #f6f7f9;
+            --card: #ffffff;
+            --text: #1d2330;
+            --muted: #5f6b7a;
+            --border: #d9dee5;
+            --accent: #2f6fde;
+            --pass: #2e7d32;
+            --fail: #c62828;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #14171c;
+                --card: #1d2129;
+                --text: #e6e9ee;
+                --muted: #9aa5b4;
+                --border: #333a46;
+                --accent: #6b9cf0;
+                --pass: #6bc46f;
+                --fail: #ef6b6b;
+            }
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 24px 16px;
+            background: var(--bg);
+            color: var(--text);
+            font: 15px/1.5 system-ui, sans-serif;
+        }
+        main { max-width: 900px; margin: 0 auto; display: grid; gap: 16px; }
+        h1 { margin: 0; font-size: 24px; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+        .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; align-items: end; }
+        label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+        input {
+            padding: 8px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--bg);
+            color: var(--text);
+            font: inherit;
+        }
+        button {
+            padding: 9px 14px;
+            border: 0;
+            border-radius: 6px;
+            background: var(--accent);
+            color: #fff;
+            font: inherit;
+            cursor: pointer;
+        }
+        button:disabled { opacity: .6; cursor: default; }
+        #summary { font-weight: 600; margin: 0; }
+        .pass { color: var(--pass); }
+        .fail { color: var(--fail); }
+        .muted { color: var(--muted); }
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 6px 4px; border-bottom: 1px solid var(--border); vertical-align: top; }
+        td.status { white-space: nowrap; font-weight: 600; }
+        td.detail { font-family: ui-monospace, monospace; font-size: 13px; word-break: break-word; }
+        p { margin: 0; }
+    </style>
+</head>
+<body>
+<main>
+    <header>
+        <h1>User API tests</h1>
+        <p class="muted">
+            Runs against the running server. Each run creates new users with unique names,
+            so it can be run again without restarting.
+        </p>
+    </header>
+
+    <section class="card controls">
+        <label>API base URL
+            <input id="base-url" value="http://localhost:7070/api">
+        </label>
+        <label>Admin username
+            <input id="admin-user" value="MikkelMattern">
+        </label>
+        <label>Admin password
+            <input id="admin-pass" type="password" value="test123">
+        </label>
+        <button id="run">Run tests</button>
+    </section>
+
+    <section class="card">
+        <p id="summary" class="muted">Not run yet.</p>
+    </section>
+
+    <section class="card table-wrap">
+        <table>
+            <thead><tr><th>#</th><th>Test</th><th>Result</th><th>Details</th></tr></thead>
+            <tbody id="results"></tbody>
+        </table>
+    </section>
+</main>
+
+<script>
+    // ---------- Test helpers ----------
+
+    let baseUrl = "";
+
+    // Sends a request and returns the status and parsed JSON body. Never throws on HTTP errors,
+    // so the tests can check error statuses.
+    async function request(method, path, { token, body } = {}) {
+        const headers = {};
+        if (body !== undefined) headers["Content-Type"] = "application/json";
+        if (token) headers["Authorization"] = "Bearer " + token;
+
+        const response = await fetch(baseUrl + path, {
+            method,
+            headers,
+            body: body === undefined ? undefined : JSON.stringify(body)
+        });
+        const json = await response.json().catch(() => null);
+        return { status: response.status, body: json };
+    }
+
+    // Reads the claims from a JWT without verifying it (the server does that)
+    function claims(token) {
+        const payload = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+        return JSON.parse(atob(payload));
+    }
+
+    function assert(condition, message) {
+        if (!condition) throw new Error(message);
+    }
+
+    function expectStatus(response, expected) {
+        assert(response.status === expected,
+            "expected status " + expected + ", got " + response.status +
+            (response.body && response.body.msg ? " (" + response.body.msg + ")" : ""));
+    }
+
+    async function login(username, password) {
+        const response = await request("POST", "/auth/login", { body: { username, password } });
+        expectStatus(response, 200);
+        return response.body.token;
+    }
+
+    // ---------- Test runner ----------
+
+    const tests = [];
+
+    function test(name, fn) {
+        tests.push({ name, fn });
+    }
+
+    function addRow(index, name, passed, detail) {
+        const row = document.createElement("tr");
+        const cells = [
+            String(index + 1),
+            name,
+            passed ? "PASS" : "FAIL",
+            detail
+        ];
+        cells.forEach((text, i) => {
+            const cell = document.createElement("td");
+            cell.textContent = text;
+            if (i === 2) cell.className = "status " + (passed ? "pass" : "fail");
+            if (i === 3) cell.className = "detail";
+            row.append(cell);
+        });
+        document.getElementById("results").append(row);
+    }
+
+    async function runAll() {
+        const button = document.getElementById("run");
+        const summary = document.getElementById("summary");
+        button.disabled = true;
+        document.getElementById("results").replaceChildren();
+        baseUrl = document.getElementById("base-url").value.replace(/\/$/, "");
+        state = freshState();
+
+        let passed = 0;
+        for (const [index, t] of tests.entries()) {
+            summary.textContent = "Running " + (index + 1) + " of " + tests.length + "…";
+            summary.className = "muted";
+            try {
+                const detail = await t.fn();
+                addRow(index, t.name, true, detail || "");
+                passed++;
+            } catch (e) {
+                const message = e instanceof TypeError
+                    ? "Could not reach the server (" + e.message + "). Is it running, and is the URL right?"
+                    : e.message;
+                addRow(index, t.name, false, message);
+            }
+        }
+
+        const failed = tests.length - passed;
+        summary.textContent = passed + " passed, " + failed + " failed, " + tests.length + " total";
+        summary.className = failed === 0 ? "pass" : "fail";
+        button.disabled = false;
+    }
+
+    document.getElementById("run").addEventListener("click", runAll);
+
+    // ---------- Shared state between tests ----------
+
+    // Tests run in order and build on each other, e.g. a user registered in one test logs in in the next
+    let state;
+
+    function freshState() {
+        const suffix = Date.now().toString(36);
+        return {
+            adminToken: null,
+            adminId: null,
+            user: {
+                username: "test_" + suffix,
+                email: "test_" + suffix + "@test.dk",
+                password: "pw_" + suffix
+            },
+            userId: null,
+            userToken: null
+        };
+    }
+
+    // ---------- Login ----------
+
+    test("Admin can log in", async () => {
+        const admin = document.getElementById("admin-user").value;
+        const password = document.getElementById("admin-pass").value;
+        state.adminToken = await login(admin, password);
+        const c = claims(state.adminToken);
+        state.adminId = c.id;
+        assert(c.roles.split(",").includes("ADMIN"), "token roles should include ADMIN, got: " + c.roles);
+        return "token roles: " + c.roles + ", id: " + c.id;
+    });
+
+    test("Token contains id, username and email but no password", async () => {
+        const c = claims(state.adminToken);
+        assert(c.id !== undefined, "token has no id claim");
+        assert(c.sub, "token has no subject (username)");
+        assert(c.email, "token has no email claim");
+        assert(!("password" in c) && !("hashedPassword" in c), "token contains a password field");
+        return "claims: " + Object.keys(c).join(", ");
+    });
+
+    test("Wrong password gives 401", async () => {
+        const admin = document.getElementById("admin-user").value;
+        const r = await request("POST", "/auth/login", { body: { username: admin, password: "wrong-password" } });
+        expectStatus(r, 401);
+        return r.body.msg;
+    });
+
+    test("Unknown user gives 401 with the same message as a wrong password", async () => {
+        const r = await request("POST", "/auth/login", { body: { username: "no_such_user_x", password: "x" } });
+        expectStatus(r, 401);
+        assert(r.body.msg === "Invalid username or password",
+            "message should not reveal whether the user exists, got: " + r.body.msg);
+        return r.body.msg;
+    });
+
+    // ---------- Authentication ----------
+
+    test("Protected route without a token gives 401", async () => {
+        const r = await request("GET", "/users");
+        expectStatus(r, 401);
+        return r.body.msg;
+    });
+
+    test("Protected route with an invalid token gives 401", async () => {
+        const r = await request("GET", "/users", { token: "not.a.token" });
+        expectStatus(r, 401);
+        return r.body.msg;
+    });
+
+    test("Token with a changed payload (forged role) gives 401", async () => {
+        // Swap the payload for one claiming extra roles, but keep the original signature
+        const [header, , signature] = state.adminToken.split(".");
+        const forged = btoa(JSON.stringify({ sub: "hacker", roles: "ADMIN", exp: 9999999999 }))
+            .replace(/=+$/, "").replace(/\+/g, "-").replace(/\//g, "_");
+        const r = await request("GET", "/users", { token: header + "." + forged + "." + signature });
+        expectStatus(r, 401);
+        return r.body.msg;
+    });
+
+    // ---------- Registration ----------
+
+    test("Register a new user gives 201 without a password in the response", async () => {
+        const r = await request("POST", "/users", { body: state.user });
+        expectStatus(r, 201);
+        assert(r.body.username === state.user.username, "wrong username in response");
+        assert(!("password" in r.body) && !("hashedPassword" in r.body), "response contains a password field");
+        state.userId = r.body.id;
+        return "created id " + r.body.id;
+    });
+
+    test("Register with a taken username gives 409", async () => {
+        const r = await request("POST", "/users", {
+            body: { ...state.user, email: "other_" + state.user.email }
+        });
+        expectStatus(r, 409);
+        return r.body.msg;
+    });
+
+    test("Register with a taken email gives 409", async () => {
+        const r = await request("POST", "/users", {
+            body: { ...state.user, username: "other_" + state.user.username }
+        });
+        expectStatus(r, 409);
+        return r.body.msg;
+    });
+
+    test("Register without a password gives 400", async () => {
+        const r = await request("POST", "/users", {
+            body: { username: "nopw_" + state.user.username, email: "nopw_" + state.user.email }
+        });
+        expectStatus(r, 400);
+        return r.body.msg;
+    });
+
+    test("Register without a username gives 400", async () => {
+        const r = await request("POST", "/users", {
+            body: { email: "nouser_" + state.user.email, password: "x" }
+        });
+        expectStatus(r, 400);
+        return r.body.msg;
+    });
+
+    // ---------- Logged in as a normal user ----------
+
+    test("New user can log in and has only the USER role", async () => {
+        state.userToken = await login(state.user.username, state.user.password);
+        const roles = claims(state.userToken).roles.split(",");
+        assert(roles.length === 1 && roles[0] === "USER", "expected only USER, got: " + roles.join(","));
+        return "roles: " + roles.join(",");
+    });
+
+    test("GET /auth/me returns the logged-in user", async () => {
+        const r = await request("GET", "/auth/me", { token: state.userToken });
+        expectStatus(r, 200);
+        assert(r.body.id === state.userId, "expected id " + state.userId + ", got " + r.body.id);
+        assert(r.body.username === state.user.username, "wrong username");
+        return r.body.username + " (" + r.body.email + ")";
+    });
+
+    test("Normal user gets 403 on GET /users (admin only)", async () => {
+        const r = await request("GET", "/users", { token: state.userToken });
+        expectStatus(r, 403);
+        return r.body.msg;
+    });
+
+    test("Normal user gets 403 on GET /users/{id} (admin only)", async () => {
+        const r = await request("GET", "/users/" + state.userId, { token: state.userToken });
+        expectStatus(r, 403);
+        return r.body.msg;
+    });
+
+    test("Normal user can't give themself a role (403)", async () => {
+        const r = await request("POST", "/users/" + state.userId + "/roles/ADMIN", { token: state.userToken });
+        expectStatus(r, 403);
+        return r.body.msg;
+    });
+
+    // ---------- Admin ----------
+
+    test("Admin can list users, and the new user is in the list", async () => {
+        const r = await request("GET", "/users", { token: state.adminToken });
+        expectStatus(r, 200);
+        assert(r.body.some(u => u.id === state.userId), "new user not in the list");
+        return r.body.length + " users";
+    });
+
+    test("Admin can get one user by id", async () => {
+        const r = await request("GET", "/users/" + state.userId, { token: state.adminToken });
+        expectStatus(r, 200);
+        assert(r.body.username === state.user.username, "wrong user returned");
+        return r.body.username;
+    });
+
+    test("Admin gets 404 for a user that doesn't exist", async () => {
+        const r = await request("GET", "/users/999999999", { token: state.adminToken });
+        expectStatus(r, 404);
+        return r.body.msg;
+    });
+
+    // ---------- Updating ----------
+
+    test("User can update their own email", async () => {
+        const newEmail = "new_" + state.user.email;
+        const r = await request("PUT", "/users/" + state.userId, {
+            token: state.userToken,
+            body: { email: newEmail }
+        });
+        expectStatus(r, 200);
+        assert(r.body.email === newEmail, "email not changed");
+        state.user.email = newEmail;
+        return r.body.email;
+    });
+
+    test("Updating only the email keeps the password working", async () => {
+        await login(state.user.username, state.user.password);
+        return "login still works";
+    });
+
+    test("User can't update another user (403)", async () => {
+        const r = await request("PUT", "/users/" + state.adminId, {
+            token: state.userToken,
+            body: { email: "stolen@test.dk" }
+        });
+        expectStatus(r, 403);
+        return r.body.msg;
+    });
+
+    test("User can't take another user's username (409)", async () => {
+        const r = await request("PUT", "/users/" + state.userId, {
+            token: state.userToken,
+            body: { username: document.getElementById("admin-user").value }
+        });
+        expectStatus(r, 409);
+        return r.body.msg;
+    });
+
+    test("Sending roles in the update body doesn't change roles", async () => {
+        await request("PUT", "/users/" + state.userId, {
+            token: state.userToken,
+            body: { roles: ["ADMIN"] }
+        });
+        const token = await login(state.user.username, state.user.password);
+        const roles = claims(token).roles;
+        assert(!roles.includes("ADMIN"), "user became admin: " + roles);
+        return "roles still: " + roles;
+    });
+
+    test("After renaming, the old token still works on the user's own account", async () => {
+        const newName = "renamed_" + state.user.username;
+        const rename = await request("PUT", "/users/" + state.userId, {
+            token: state.userToken,
+            body: { username: newName }
+        });
+        expectStatus(rename, 200);
+        state.user.username = newName;
+
+        // The token still holds the old username, so access must be checked by id
+        const r = await request("PUT", "/users/" + state.userId, {
+            token: state.userToken,
+            body: { email: state.user.email }
+        });
+        expectStatus(r, 200);
+        return "renamed to " + newName + ", old token accepted";
+    });
+
+    test("User can log in with the new username", async () => {
+        state.userToken = await login(state.user.username, state.user.password);
+        return "logged in as " + state.user.username;
+    });
+
+    // ---------- Roles ----------
+
+    test("Admin gets 400 for an unknown role", async () => {
+        const r = await request("POST", "/users/" + state.userId + "/roles/WIZARD", { token: state.adminToken });
+        expectStatus(r, 400);
+        return r.body.msg;
+    });
+
+    test("Admin can give a user the AUTHOR role (seen at next login)", async () => {
+        const r = await request("POST", "/users/" + state.userId + "/roles/author", { token: state.adminToken });
+        expectStatus(r, 200);
+        const roles = claims(await login(state.user.username, state.user.password)).roles.split(",");
+        assert(roles.includes("AUTHOR"), "AUTHOR not in new token: " + roles.join(","));
+        return "roles after login: " + roles.join(",");
+    });
+
+    test("Admin can remove the AUTHOR role again", async () => {
+        const r = await request("DELETE", "/users/" + state.userId + "/roles/AUTHOR", { token: state.adminToken });
+        expectStatus(r, 200);
+        const roles = claims(await login(state.user.username, state.user.password)).roles.split(",");
+        assert(!roles.includes("AUTHOR"), "AUTHOR still in token: " + roles.join(","));
+        return "roles after login: " + roles.join(",");
+    });
+
+    test("Admin can't remove their own ADMIN role (400)", async () => {
+        const r = await request("DELETE", "/users/" + state.adminId + "/roles/ADMIN", { token: state.adminToken });
+        expectStatus(r, 400);
+        return r.body.msg;
+    });
+
+    // ---------- Deleting ----------
+
+    test("User can't delete another user (403)", async () => {
+        const r = await request("DELETE", "/users/" + state.adminId, { token: state.userToken });
+        expectStatus(r, 403);
+        return r.body.msg;
+    });
+
+    test("User can delete their own account", async () => {
+        const r = await request("DELETE", "/users/" + state.userId, { token: state.userToken });
+        expectStatus(r, 200);
+        return "deleted id " + r.body.id;
+    });
+
+    test("Deleted user can't log in (401)", async () => {
+        const r = await request("POST", "/auth/login", {
+            body: { username: state.user.username, password: state.user.password }
+        });
+        expectStatus(r, 401);
+        return r.body.msg;
+    });
+
+    test("Deleting a user that doesn't exist gives 404", async () => {
+        const r = await request("DELETE", "/users/" + state.userId, { token: state.adminToken });
+        expectStatus(r, 404);
+        return r.body.msg;
+    });
+</script>
+</body>
+</html>
