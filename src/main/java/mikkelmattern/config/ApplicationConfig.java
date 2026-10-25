@@ -1,11 +1,14 @@
 package mikkelmattern.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.javalin.Javalin;
 import io.javalin.apibuilder.EndpointGroup;
 import io.javalin.config.JavalinConfig;
 import io.javalin.http.staticfiles.Location;
+import io.javalin.json.JavalinJackson;
 import io.javalin.plugin.bundled.CorsPluginConfig;
 import mikkelmattern.exceptions.ApiException;
 import mikkelmattern.enums.Role;
@@ -203,6 +206,11 @@ public class ApplicationConfig {
      * @param config the Javalin config to change
      */
     private void applyBaseConfig(JavalinConfig config) {
+
+        config.jsonMapper(new JavalinJackson().updateMapper(mapper -> {
+            mapper.registerModule(new JavaTimeModule());
+            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        }));
         config.http.defaultContentType = "application/json";
         config.router.contextPath = "/api";
 

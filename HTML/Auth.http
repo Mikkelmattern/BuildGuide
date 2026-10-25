@@ -1,0 +1,21 @@
+@url = http://localhost:7070/api
+### --- SETUP: run these first ---
+### Login as admin
+POST {{url}}/auth/login
+Content-Type: application/json
+
+{ "username": "admin",  "email": "mini0003@stud.ek.dk", "password": "test123" }
+
+> {% client.global.set("adminToken", response.body.token); %}
+
+### Create author
+POST {{url}}/users
+Content-Type: application/json
+
+{ "username": "author", "email": "mini0001@stud.ek.dk", "password": "test123" }
+
+### Create other user
+POST {{url}}/users
+Content-Type: application/json
+
+{ "username": "otheruser", "email": "mini0002@stud.ek.dk", "password": "test123" }

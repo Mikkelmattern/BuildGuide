@@ -44,7 +44,7 @@ public class UserRoutes implements IRoutes {
         return () -> {
             path("auth", () -> {
                 post("login", userController::login, Role.ANYONE);
-                get("me", userController::me, Role.USER, Role.AUTHOR, Role.ADMIN);
+                get("me", userController::me, Role.USER, Role.ADMIN);
             });
             path("users", () -> {
                 get(userController::getAllUsers, Role.ADMIN);

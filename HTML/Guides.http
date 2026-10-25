@@ -1,53 +1,99 @@
 @url = http://localhost:7070/api
 
+run ./Auth.http
 
-### --- SETUP: run these first ---
-
-### Create author
-POST {{url}}/users
-Content-Type: application/json
-
-{ "username": "author", "email": "mini0001@stud.ek.dk", "password": "test123" }
-
-### Create other user
-POST {{url}}/users
-Content-Type: application/json
-
-{ "username": "otheruser", "email": "mini0002@stud.ek.dk", "password": "test123" }
-
-### Create admin (becomes admin via the roles endpoint or the database)
-POST {{url}}/users
-Content-Type: application/json
-
-{ "username": "admin",  "email": "mini0003@stud.ek.dk", "password": "test123" }
-
-### Login as author
-POST {{url}}/auth/login
-Content-Type: application/json
-
-{ "username": "author",  "email": "mini0001@stud.ek.dk", "password": "test123" }
-
-> {% client.global.set("authorToken", response.body.token); %}
-
-### Login as another user (not the author)
-POST {{url}}/auth/login
-Content-Type: application/json
-
-{ "username": "otheruser",  "email": "mini0002@stud.ek.dk", "password": "test123" }
-
-> {% client.global.set("otherToken", response.body.token); %}
-
-### Login as admin
-POST {{url}}/auth/login
-Content-Type: application/json
-
-{ "username": "admin",  "email": "mini0003@stud.ek.dk", "password": "test123" }
-
-> {% client.global.set("adminToken", response.body.token); %}
-
-### All guides
-GET {{url}}/guides
-Authorization: Bearer {{authorToken}}
+### Add a guide
+POST {{url}}/guides
+Authorization: Bearer {{otherToken}}
 Content-Type: application/json
 
 { "title": "Elden Ring: 100% route" }
+
+> {%
+    client.test("Create guide returns 201 with an id", function () {
+        client.assert(response.status === 201, "Expected 201 but got " + response.status);
+        client.assert(response.body.id, "No id in response");
+        client.assert(response.body.title === "Elden Ring: 100% route", "Wrong title");
+    });
+    client.global.set("guideId", response.body.id);
+%}
+
+### Get all guides
+GET {{url}}/guides
+
+> {%
+    client.test("All guides returns a list", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+        client.assert(Array.isArray(response.body), "Response is not a list");
+        client.assert(response.body.length > 0, "List is empty");
+    });
+%}
+
+### Get guide by id
+GET {{url}}/guides/{{guideId}}
+
+> {%
+    client.test("Get guide returns the right guide", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+        client.assert(response.body.id == client.global.get("guideId"), "Wrong guide returned");
+    });
+%}
+
+### Unknown guide gives 404
+GET {{url}}/guides/999999
+
+> {%
+    client.test("Missing guide gives 404", function () {
+        client.assert(response.status === 404, "Expected 404 but got " + response.status);
+    });
+%}
+
+### Owner updates the guide
+PUT {{url}}/guides/{{guideId}}
+Authorization: Bearer {{otherToken}}
+Content-Type: application/json
+
+{ "title": "Updated title" }
+
+> {%
+    client.test("Owner can update guide", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+        client.assert(response.body.title === "Updated title", "Title was not updated");
+    });
+%}
+
+### Someone else tries to update it
+PUT {{url}}/guides/{{guideId}}
+Authorization: Bearer {{authorToken}}
+Content-Type: application/json
+
+{ "title": "Hacked" }
+
+> {%
+    client.test("Non-owner cannot update guide", function () {
+        client.assert(response.status === 403, "Expected 403 but got " + response.status);
+    });
+%}
+
+### Guest tries to create a guide
+POST {{url}}/guides
+Content-Type: application/json
+
+{ "title": "No token" }
+
+> {%
+    client.test("Guest cannot create guide", function () {
+        client.assert(response.status === 401, "Expected 401 but got " + response.status);
+    });
+%}
+
+### Owner deletes the guide
+DELETE {{url}}/guides/{{guideId}}
+Authorization: Bearer {{otherToken}}
+
+> {%
+    client.test("Owner can delete guide", function () {
+        client.assert(response.status === 200 || response.status === 204,
+            "Expected 200 or 204 but got " + response.status);
+    });
+%}

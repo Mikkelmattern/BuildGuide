@@ -5,15 +5,18 @@ import mikkelmattern.DAOs.*;
 import mikkelmattern.config.ApplicationConfig;
 import mikkelmattern.config.HibernateConfig;
 import mikkelmattern.controller.GuideController;
+import mikkelmattern.controller.NodeController;
 import mikkelmattern.controller.UserController;
 import mikkelmattern.entities.User;
 import mikkelmattern.routes.GuideRoutes;
+import mikkelmattern.routes.NodeRoutes;
 import mikkelmattern.routes.UserRoutes;
 import mikkelmattern.enums.Role;
 import mikkelmattern.security.SecurityService;
 import mikkelmattern.security.TokenService;
 import mikkelmattern.security.controller.SecurityController;
 import mikkelmattern.services.GuideService;
+import mikkelmattern.services.NodeService;
 import mikkelmattern.services.UserService;
 import mikkelmattern.utils.Utils;
 
@@ -42,6 +45,10 @@ public class Main {
         SecurityController securityController = new SecurityController(tokenService);           // verifies tokens
 
         // Services, controllers and routes
+        NodeService nodeService = new NodeService(nodeDao, guideDao);
+        NodeController nodeController = new NodeController(nodeService);
+        NodeRoutes nodeRoutes = new NodeRoutes(nodeController);
+
         UserService userService = new UserService(userDao, securityService);
         UserController userController = new UserController(userService, securityService);
         UserRoutes userRoutes = new UserRoutes(userController);
@@ -52,8 +59,8 @@ public class Main {
 
         // Test user (hbm2ddl.auto is "create", so the tables are empty on every start)
         User user = User.builder()
-                .username("MikkelMattern")
-                .email("Mini0011@stud.ek.dk")
+                .username("admin")
+                .email("Mini0003@stud.ek.dk")
                 .password("test123")
                 .build();
         // Both roles, since authorize needs an exact match and some routes only allow USER
@@ -66,6 +73,7 @@ public class Main {
         new ApplicationConfig(securityController)
                 .route(userRoutes.getRoutes())
                 .route(guideRoutes.getRoutes())
+                .route(nodeRoutes.getRoutes())
                 .cors()
                 .security()
                 .apiExceptions()

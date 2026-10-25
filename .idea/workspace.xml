@@ -4,44 +4,23 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="30ccf195-beee-451c-b423-c20e3c2031d1" name="Changes" comment="Added entire login flow with BCrypt hashing of password and signed tokens">
-      <change afterPath="$PROJECT_DIR$/HTML/Guides.http" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/HTML/Users.http" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/INodeDao.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/IRevealDao.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/NodeDaoImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/RevealDaoImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DTOs/GuideSummaryDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DTOs/NodeDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/entities/Node.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/entities/Reveal.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/enums/ReadingMode.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/populate/AdminSeeder.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/records/GuideRequest.java" afterDir="false" />
+    <list default="true" id="30ccf195-beee-451c-b423-c20e3c2031d1" name="Changes" comment="Added Entities Reveal and Node, their Daos and added them to the controllers /services">
+      <change afterPath="$PROJECT_DIR$/HTML/Auth.http" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/controller/NodeController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/mappers/NodeMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/records/NodeRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/routes/NodeRoutes.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/services/NodeService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/HTML/Users.html" beforeDir="false" afterPath="$PROJECT_DIR$/HTML/Users.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/HTML/Guides.http" beforeDir="false" afterPath="$PROJECT_DIR$/HTML/Guides.http" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/HTML/Users.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/HTML/Users.http" beforeDir="false" afterPath="$PROJECT_DIR$/HTML/Users.http" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/DAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/DAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/GuideDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/IGuideDao.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/GuideDaoImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/GuideDaoImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/UserDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/IUserDao.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/UserDaoImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/UserDaoImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/DTOs/GuideDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DTOs/GuideDTO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/config/ApplicationConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/config/ApplicationConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/config/EntityRegistry.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/config/EntityRegistry.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/controller/UserController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/entities/Guide.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/entities/Guide.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/entities/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/entities/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/exceptions/ApiException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/exceptions/ApiException.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/mappers/GuideMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/mappers/GuideMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/enums/Role.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/enums/Role.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/populate/AdminSeeder.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/routes/UserRoutes.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/routes/UserRoutes.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/security/ISecurityDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/security/ISecurityDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/security/ISecurityUser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/security/ISecurityUser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/security/Role.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/enums/Role.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/security/SecurityService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/security/SecurityService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/security/controller/SecurityController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/security/controller/SecurityController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/services/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/services/UserService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -73,13 +52,13 @@
     &quot;accountId&quot;: &quot;c6902be5-378a-4251-bdfc-e34e6680b828&quot;
   }
 }</component>
-  <component name="HttpClientOnboardingState"><![CDATA[{
-  "isOnboardingCommentShown": true
-}]]></component>
-  <component name="KubernetesApiPersistence"><![CDATA[{}]]></component>
-  <component name="KubernetesApiProvider"><![CDATA[{
-  "isMigrated": true
-}]]></component>
+  <component name="HttpClientOnboardingState">{
+  &quot;isOnboardingCommentShown&quot;: true
+}</component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 0
 }</component>
@@ -93,8 +72,19 @@
     "Application.Main.executor": "Run",
     "HTTP Request.All in Guides.executor": "Run",
     "HTTP Request.All in Users.executor": "Run",
+    "HTTP Request.Guides | #1.executor": "Run",
+    "HTTP Request.Guides | Add a guide.executor": "Run",
+    "HTTP Request.Guides | All guides.executor": "Run",
+    "HTTP Request.Guides | Delete guide by ID.executor": "Run",
+    "HTTP Request.Guides | Get all guides.executor": "Run",
+    "HTTP Request.Guides | Get guide by ID.executor": "Run",
+    "HTTP Request.Guides | Update guide by ID.executor": "Run",
+    "HTTP Request.Users | Add role to user.executor": "Run",
+    "HTTP Request.Users | Delete role from user.executor": "Run",
     "HTTP Request.Users | Get all users.executor": "Run",
     "HTTP Request.Users | Get own profile.executor": "Run",
+    "HTTP Request.Users | Get user with ID.executor": "Run",
+    "HTTP Request.Users | Login as author.executor": "Run",
     "JavaScript Debug.Guides.html.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -125,6 +115,8 @@
       <recent name="C:\Datamatiker\Github\3.sem\build-guide-project\src\main\java\mikkelmattern" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Datamatiker\Github\3.sem\build-guide-project\HTML" />
+      <recent name="C:\Datamatiker\Github\3.sem\build-guide-project\Users.http" />
       <recent name="C:\Datamatiker\Github\3.sem\build-guide-project" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
@@ -140,8 +132,9 @@
             <map>
               <entry key="All in Guides" value="STOPPED" />
               <entry key="All in Users" value="STOPPED" />
-              <entry key="Users | Get all users" value="STOPPED" />
-              <entry key="Users | Get own profile" value="STOPPED" />
+              <entry key="Guides | #1" value="STOPPED" />
+              <entry key="Guides | Add a guide" value="STOPPED" />
+              <entry key="Guides | Update guide by ID" value="STOPPED" />
             </map>
           </value>
         </entry>
@@ -162,18 +155,22 @@
     <configuration name="All in Users" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" path="$PROJECT_DIR$/HTML/Users.http">
       <method v="2" />
     </configuration>
-    <configuration name="Users | Get all users" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/HTML/Users.http" executionIdentifier="Get all users" index="8" runType="Run single request">
+    <configuration name="Guides | Add a guide" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/HTML/Guides.http" executionIdentifier="Add a guide" index="2" runType="Run single request">
       <method v="2" />
     </configuration>
-    <configuration name="Users | Get own profile" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/HTML/Users.http" executionIdentifier="Get own profile" index="7" runType="Run single request">
+    <configuration name="Guides | Update guide by ID" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/HTML/Guides.http" executionIdentifier="Update guide by ID" index="4" runType="Run single request">
+      <method v="2" />
+    </configuration>
+    <configuration name="Guides | #1" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/HTML/Guides.http" executionIdentifier="#1" runType="Run single request">
       <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="HTTP Request.Users | Get all users" />
+        <item itemvalue="HTTP Request.Guides | Add a guide" />
         <item itemvalue="HTTP Request.All in Users" />
-        <item itemvalue="HTTP Request.Users | Get own profile" />
         <item itemvalue="HTTP Request.All in Guides" />
+        <item itemvalue="HTTP Request.Guides | #1" />
+        <item itemvalue="HTTP Request.Guides | Update guide by ID" />
       </list>
     </recent_temporary>
   </component>
@@ -195,7 +192,7 @@
       <workItem from="1787324807367" duration="28840000" />
       <workItem from="1790151521601" duration="662000" />
       <workItem from="1791831742806" duration="9153000" />
-      <workItem from="1792405158334" duration="24965000" />
+      <workItem from="1792405158334" duration="42539000" />
     </task>
     <task id="LOCAL-00001" summary="Added entire login flow with BCrypt hashing of password and signed tokens">
       <option name="closed" value="true" />
@@ -205,7 +202,15 @@
       <option name="project" value="LOCAL" />
       <updated>1792054933258</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Added Entities Reveal and Node, their Daos and added them to the controllers /services">
+      <option name="closed" value="true" />
+      <created>1792753832211</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1792753832211</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -213,6 +218,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Added entire login flow with BCrypt hashing of password and signed tokens" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added entire login flow with BCrypt hashing of password and signed tokens" />
+    <MESSAGE value="Added Entities Reveal and Node, their Daos and added them to the controllers /services" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added Entities Reveal and Node, their Daos and added them to the controllers /services" />
   </component>
 </project>
