@@ -1,0 +1,373 @@
+@url = http://localhost:7070/api
+
+# Creates and logs in author, otheruser and admin, and sets
+# authorToken, otherToken and adminToken
+run ./Auth.http
+
+### --- SETUP: a guide owned by otheruser, and a second guide for the cross-guide test ---
+
+### Create the guide the nodes go in
+POST {{url}}/guides
+Authorization: Bearer {{otherToken}}
+Content-Type: application/json
+
+{ "title": "Node test guide" }
+
+> {%
+    client.test("Setup guide is created", function () {
+        client.assert(response.status === 201, "Expected 201 but got " + response.status);
+    });
+    client.global.set("guideId", response.body.id);
+%}
+
+### Create a second guide
+POST {{url}}/guides
+Authorization: Bearer {{otherToken}}
+Content-Type: application/json
+
+{ "title": "Other guide" }
+
+> {%
+    client.test("Second guide is created", function () {
+        client.assert(response.status === 201, "Expected 201 but got " + response.status);
+    });
+    client.global.set("otherGuideId", response.body.id);
+%}
+
+### --- CREATE ---
+# Builds this tree:
+#   Act 1
+#   └── Limgrave
+#       └── Church of Elleh
+#   Act 2
+
+### Owner creates a top-level node
+POST {{url}}/guides/{{guideId}}/nodes
+Authorization: Bearer {{otherToken}}
+Content-Type: application/json
+
+{ "title": "Act 1", "storyOrderNumber": 1, "priorityNumber": 1 }
+
+> {%
+    client.test("Create node returns 201 with an id", function () {
+        client.assert(response.status === 201, "Expected 201 but got " + response.status);
+        client.assert(response.body.id, "No id in response");
+        client.assert(response.body.title === "Act 1", "Wrong title");
+        client.assert(response.body.storyOrderNumber === 1, "Wrong storyOrderNumber");
+    });
+    client.global.set("act1Id", response.body.id);
+%}
+
+### Owner creates a child node
+POST {{url}}/guides/{{guideId}}/nodes
+Authorization: Bearer {{otherToken}}
+Content-Type: application/json
+
+{ "title": "Limgrave", "parentId": {{act1Id}}, "content": "Starting area" }
+
+> {%
+    client.test("Create child node returns 201", function () {
+        client.assert(response.status === 201, "Expected 201 but got " + response.status);
+        client.assert(response.body.content === "Starting area", "Content was not saved");
+    });
+    client.global.set("childId", response.body.id);
+%}
+
+### Owner creates a grandchild node
+POST {{url}}/guides/{{guideId}}/nodes
+Authorization: Bearer {{otherToken}}
+Content-Type: application/json
+
+{ "title": "Church of Elleh", "parentId": {{childId}}, "content": "Smithing table and merchant" }
+
+> {%
+    client.test("Create grandchild node returns 201", function () {
+        client.assert(response.status === 201, "Expected 201 but got " + response.status);
+    });
+    client.global.set("grandchildId", response.body.id);
+%}
+
+### Owner creates a second top-level node
+POST {{url}}/guides/{{guideId}}/nodes
+Authorization: Bearer {{otherToken}}
+Content-Type: application/json
+
+{ "title": "Act 2", "storyOrderNumber": 2 }
+
+> {%
+    client.test("Create second top-level node returns 201", function () {
+        client.assert(response.status === 201, "Expected 201 but got " + response.status);
+    });
+    client.global.set("act2Id", response.body.id);
+%}
+
+### Owner creates a node in the second guide
+POST {{url}}/guides/{{otherGuideId}}/nodes
+Authorization: Bearer {{otherToken}}
+Content-Type: application/json
+
+{ "title": "Node in other guide" }
+
+> {%
+    client.test("Node in second guide is created", function () {
+        client.assert(response.status === 201, "Expected 201 but got " + response.status);
+    });
+    client.global.set("otherGuideNodeId", response.body.id);
+%}
+
+### Create a node without a title
+POST {{url}}/guides/{{guideId}}/nodes
+Authorization: Bearer {{otherToken}}
+Content-Type: application/json
+
+{ "content": "No title" }
+
+> {%
+    client.test("Missing title gives 400", function () {
+        client.assert(response.status === 400, "Expected 400 but got " + response.status);
+    });
+%}
+
+### Create a node with a parent from another guide
+POST {{url}}/guides/{{guideId}}/nodes
+Authorization: Bearer {{otherToken}}
+Content-Type: application/json
+
+{ "title": "Wrong parent", "parentId": {{otherGuideNodeId}} }
+
+> {%
+    client.test("Parent in another guide gives 400", function () {
+        client.assert(response.status === 400, "Expected 400 but got " + response.status);
+    });
+%}
+
+### Create a node in a guide that doesn't exist
+POST {{url}}/guides/999999/nodes
+Authorization: Bearer {{otherToken}}
+Content-Type: application/json
+
+{ "title": "Nowhere" }
+
+> {%
+    client.test("Missing guide gives 404", function () {
+        client.assert(response.status === 404, "Expected 404 but got " + response.status);
+    });
+%}
+
+### Someone else tries to add a node
+POST {{url}}/guides/{{guideId}}/nodes
+Authorization: Bearer {{authorToken}}
+Content-Type: application/json
+
+{ "title": "Not my guide" }
+
+> {%
+    client.test("Non-owner cannot add nodes", function () {
+        client.assert(response.status === 403, "Expected 403 but got " + response.status);
+    });
+%}
+
+### Guest tries to add a node
+POST {{url}}/guides/{{guideId}}/nodes
+Content-Type: application/json
+
+{ "title": "No token" }
+
+> {%
+    client.test("Guest cannot add nodes", function () {
+        client.assert(response.status === 401, "Expected 401 but got " + response.status);
+    });
+%}
+
+### --- UPDATE ---
+
+### Owner renames a node
+PUT {{url}}/nodes/{{childId}}
+Authorization: Bearer {{otherToken}}
+Content-Type: application/json
+
+{ "title": "Limgrave (updated)" }
+
+> {%
+    client.test("Owner can rename a node", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+        client.assert(response.body.title === "Limgrave (updated)", "Title was not updated");
+        client.assert(response.body.content === "Starting area", "Content should be unchanged");
+    });
+%}
+
+### Owner changes the ordering numbers
+PUT {{url}}/nodes/{{childId}}
+Authorization: Bearer {{otherToken}}
+Content-Type: application/json
+
+{ "priorityNumber": 5, "storyOrderNumber": 3 }
+
+> {%
+    client.test("Owner can change ordering numbers", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+        client.assert(response.body.priorityNumber === 5, "priorityNumber was not updated");
+        client.assert(response.body.storyOrderNumber === 3, "storyOrderNumber was not updated");
+        client.assert(response.body.title === "Limgrave (updated)", "Title should be unchanged");
+    });
+%}
+
+### Update with a blank title
+PUT {{url}}/nodes/{{childId}}
+Authorization: Bearer {{otherToken}}
+Content-Type: application/json
+
+{ "title": "   " }
+
+> {%
+    client.test("Blank title gives 400", function () {
+        client.assert(response.status === 400, "Expected 400 but got " + response.status);
+    });
+%}
+
+### Move a node under its own grandchild
+PUT {{url}}/nodes/{{act1Id}}
+Authorization: Bearer {{otherToken}}
+Content-Type: application/json
+
+{ "parentId": {{grandchildId}} }
+
+> {%
+    client.test("Moving a node under itself gives 400", function () {
+        client.assert(response.status === 400, "Expected 400 but got " + response.status);
+    });
+%}
+
+### Move a node to a parent in another guide
+PUT {{url}}/nodes/{{childId}}
+Authorization: Bearer {{otherToken}}
+Content-Type: application/json
+
+{ "parentId": {{otherGuideNodeId}} }
+
+> {%
+    client.test("Moving to another guide gives 400", function () {
+        client.assert(response.status === 400, "Expected 400 but got " + response.status);
+    });
+%}
+
+### Owner moves Limgrave (with its child) from Act 1 to Act 2
+PUT {{url}}/nodes/{{childId}}
+Authorization: Bearer {{otherToken}}
+Content-Type: application/json
+
+{ "parentId": {{act2Id}} }
+
+> {%
+    client.test("Owner can move a node", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+    });
+%}
+
+### Someone else tries to update a node
+PUT {{url}}/nodes/{{childId}}
+Authorization: Bearer {{authorToken}}
+Content-Type: application/json
+
+{ "title": "Hacked" }
+
+> {%
+    client.test("Non-owner cannot update nodes", function () {
+        client.assert(response.status === 403, "Expected 403 but got " + response.status);
+    });
+%}
+
+### Update a node that doesn't exist
+PUT {{url}}/nodes/999999
+Authorization: Bearer {{otherToken}}
+Content-Type: application/json
+
+{ "title": "Nothing" }
+
+> {%
+    client.test("Missing node gives 404", function () {
+        client.assert(response.status === 404, "Expected 404 but got " + response.status);
+    });
+%}
+
+### --- DELETE ---
+
+### Someone else tries to delete a node
+DELETE {{url}}/nodes/{{act2Id}}
+Authorization: Bearer {{authorToken}}
+
+> {%
+    client.test("Non-owner cannot delete nodes", function () {
+        client.assert(response.status === 403, "Expected 403 but got " + response.status);
+    });
+%}
+
+### Owner deletes Act 2, which now holds Limgrave and Church of Elleh
+DELETE {{url}}/nodes/{{act2Id}}
+Authorization: Bearer {{otherToken}}
+
+> {%
+    client.test("Owner can delete a node", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+        client.assert(response.body.id == client.global.get("act2Id"), "Wrong node returned");
+    });
+%}
+
+### The grandchild was deleted with it
+# There is no GET /nodes/{id}, so an update is used to check that it's gone
+PUT {{url}}/nodes/{{grandchildId}}
+Authorization: Bearer {{otherToken}}
+Content-Type: application/json
+
+{ "title": "Still here?" }
+
+> {%
+    client.test("Deleting a node also deletes its subtree", function () {
+        client.assert(response.status === 404, "Expected 404 but got " + response.status);
+    });
+%}
+
+### Act 1 was not deleted
+PUT {{url}}/nodes/{{act1Id}}
+Authorization: Bearer {{otherToken}}
+Content-Type: application/json
+
+{ "title": "Act 1" }
+
+> {%
+    client.test("Nodes outside the subtree are kept", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+    });
+%}
+
+### Delete a node that doesn't exist
+DELETE {{url}}/nodes/999999
+Authorization: Bearer {{otherToken}}
+
+> {%
+    client.test("Deleting a missing node gives 404", function () {
+        client.assert(response.status === 404, "Expected 404 but got " + response.status);
+    });
+%}
+
+### --- CLEANUP ---
+
+### Delete the test guides
+DELETE {{url}}/guides/{{guideId}}
+Authorization: Bearer {{otherToken}}
+
+> {%
+    client.test("Test guide is deleted", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+    });
+%}
+
+### Delete the second guide
+DELETE {{url}}/guides/{{otherGuideId}}
+Authorization: Bearer {{otherToken}}
+
+> {%
+    client.test("Second guide is deleted", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+    });
+%}
