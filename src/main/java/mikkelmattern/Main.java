@@ -45,7 +45,7 @@ public class Main {
         SecurityController securityController = new SecurityController(tokenService);           // verifies tokens
 
         // Services, controllers and routes
-        NodeService nodeService = new NodeService(nodeDao, guideDao);
+        NodeService nodeService = new NodeService(nodeDao, guideDao, securityService);
         NodeController nodeController = new NodeController(nodeService);
         NodeRoutes nodeRoutes = new NodeRoutes(nodeController);
 

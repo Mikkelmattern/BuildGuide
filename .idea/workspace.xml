@@ -4,13 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="30ccf195-beee-451c-b423-c20e3c2031d1" name="Changes" comment="Added entities">
-      <change afterPath="$PROJECT_DIR$/http/Nodes.http" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/HTML/Auth.http" beforeDir="false" afterPath="$PROJECT_DIR$/http/Auth.http" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/HTML/Guides.http" beforeDir="false" afterPath="$PROJECT_DIR$/http/Guides.http" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/HTML/Users.http" beforeDir="false" afterPath="$PROJECT_DIR$/http/Users.http" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/controller/NodeController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/controller/NodeController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/services/NodeService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/services/NodeService.java" afterDir="false" />
+    <list default="true" id="30ccf195-beee-451c-b423-c20e3c2031d1" name="Changes" comment="Added entire nodes flow">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/http/Auth.http" beforeDir="false" afterPath="$PROJECT_DIR$/http/Auth.http" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/Main.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,7 +57,9 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Application.Main.executor": "Run",
+    "HTTP Request.All in Auth.executor": "Run",
     "HTTP Request.All in Guides.executor": "Run",
+    "HTTP Request.All in Nodes.executor": "Run",
     "HTTP Request.All in Users.executor": "Run",
     "HTTP Request.Guides | #1.executor": "Run",
     "HTTP Request.Guides | Add a guide.executor": "Run",
@@ -120,11 +119,11 @@
         <entry key="HttpClient.HttpRequestRunConfigurationType">
           <value>
             <map>
+              <entry key="All in Auth" value="STOPPED" />
               <entry key="All in Guides" value="STOPPED" />
+              <entry key="All in Nodes" value="STOPPED" />
               <entry key="All in Users" value="STOPPED" />
-              <entry key="Guides | #1" value="STOPPED" />
               <entry key="Guides | Add a guide" value="STOPPED" />
-              <entry key="Guides | Update guide by ID" value="STOPPED" />
             </map>
           </value>
         </entry>
@@ -139,7 +138,13 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="All in Auth" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" path="$PROJECT_DIR$/http/Auth.http">
+      <method v="2" />
+    </configuration>
     <configuration name="All in Guides" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" path="$PROJECT_DIR$/HTML/Guides.http">
+      <method v="2" />
+    </configuration>
+    <configuration name="All in Nodes" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" path="$PROJECT_DIR$/http/Nodes.http">
       <method v="2" />
     </configuration>
     <configuration name="All in Users" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" path="$PROJECT_DIR$/HTML/Users.http">
@@ -148,19 +153,13 @@
     <configuration name="Guides | Add a guide" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/HTML/Guides.http" executionIdentifier="Add a guide" index="2" runType="Run single request">
       <method v="2" />
     </configuration>
-    <configuration name="Guides | Update guide by ID" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/HTML/Guides.http" executionIdentifier="Update guide by ID" index="4" runType="Run single request">
-      <method v="2" />
-    </configuration>
-    <configuration name="Guides | #1" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/HTML/Guides.http" executionIdentifier="#1" runType="Run single request">
-      <method v="2" />
-    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="HTTP Request.All in Nodes" />
+        <item itemvalue="HTTP Request.All in Auth" />
         <item itemvalue="HTTP Request.Guides | Add a guide" />
         <item itemvalue="HTTP Request.All in Users" />
         <item itemvalue="HTTP Request.All in Guides" />
-        <item itemvalue="HTTP Request.Guides | #1" />
-        <item itemvalue="HTTP Request.Guides | Update guide by ID" />
       </list>
     </recent_temporary>
   </component>
@@ -182,7 +181,7 @@
       <workItem from="1787324807367" duration="28840000" />
       <workItem from="1790151521601" duration="662000" />
       <workItem from="1791831742806" duration="9153000" />
-      <workItem from="1792405158334" duration="46670000" />
+      <workItem from="1792405158334" duration="47726000" />
     </task>
     <task id="LOCAL-00001" summary="Added entire login flow with BCrypt hashing of password and signed tokens">
       <option name="closed" value="true" />
@@ -208,7 +207,15 @@
       <option name="project" value="LOCAL" />
       <updated>1792963386148</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Added entire nodes flow">
+      <option name="closed" value="true" />
+      <created>1793009684392</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1793009684392</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -218,6 +225,7 @@
     <MESSAGE value="Added entire login flow with BCrypt hashing of password and signed tokens" />
     <MESSAGE value="Added Entities Reveal and Node, their Daos and added them to the controllers /services" />
     <MESSAGE value="Added entities" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added entities" />
+    <MESSAGE value="Added entire nodes flow" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added entire nodes flow" />
   </component>
 </project>

@@ -19,3 +19,33 @@ POST {{url}}/users
 Content-Type: application/json
 
 { "username": "otheruser", "email": "mini0002@stud.ek.dk", "password": "test123" }
+
+### Login as author
+POST {{url}}/auth/login
+Content-Type: application/json
+
+{ "username": "author", "password": "test123" }
+
+> {% client.global.set("authorToken", response.body.token); %}
+
+### Login as other user
+POST {{url}}/auth/login
+Content-Type: application/json
+
+{ "username": "otheruser", "password": "test123" }
+
+> {% client.global.set("otherToken", response.body.token); %}
+
+### Create a guide owned by other user
+POST {{url}}/guides
+Authorization: Bearer {{otherToken}}
+Content-Type: application/json
+
+{ "title": "Setup guide" }
+
+> {%
+    client.test("Setup guide is created", function () {
+        client.assert(response.status === 201, "Expected 201 but got " + response.status);
+    });
+    client.global.set("guideId", response.body.id);
+%}
