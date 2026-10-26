@@ -4,10 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="30ccf195-beee-451c-b423-c20e3c2031d1" name="Changes" comment="Added entire nodes flow">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/http/Auth.http" beforeDir="false" afterPath="$PROJECT_DIR$/http/Auth.http" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/Main.java" afterDir="false" />
+    <list default="true" id="30ccf195-beee-451c-b423-c20e3c2031d1" name="Changes" comment="Added auth tests (And some unversioned files)">
+      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DTOs/RevealDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Users.http/Users.http" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -17,10 +16,10 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Record" />
         <option value="Enum" />
         <option value="Interface" />
         <option value="Class" />
+        <option value="Record" />
       </list>
     </option>
   </component>
@@ -181,7 +180,7 @@
       <workItem from="1787324807367" duration="28840000" />
       <workItem from="1790151521601" duration="662000" />
       <workItem from="1791831742806" duration="9153000" />
-      <workItem from="1792405158334" duration="47726000" />
+      <workItem from="1792405158334" duration="48348000" />
     </task>
     <task id="LOCAL-00001" summary="Added entire login flow with BCrypt hashing of password and signed tokens">
       <option name="closed" value="true" />
@@ -215,7 +214,23 @@
       <option name="project" value="LOCAL" />
       <updated>1793009684392</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Added auth tests">
+      <option name="closed" value="true" />
+      <created>1793010733187</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1793010733187</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Added auth tests (And some unversioned files)">
+      <option name="closed" value="true" />
+      <created>1793010809194</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1793010809194</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -226,6 +241,8 @@
     <MESSAGE value="Added Entities Reveal and Node, their Daos and added them to the controllers /services" />
     <MESSAGE value="Added entities" />
     <MESSAGE value="Added entire nodes flow" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added entire nodes flow" />
+    <MESSAGE value="Added auth tests" />
+    <MESSAGE value="Added auth tests (And some unversioned files)" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added auth tests (And some unversioned files)" />
   </component>
 </project>
