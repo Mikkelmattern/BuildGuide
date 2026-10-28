@@ -10,6 +10,7 @@ import mikkelmattern.mappers.NodeMapper;
 import mikkelmattern.records.NodeRequest;
 import mikkelmattern.security.AuthUser;
 import mikkelmattern.security.SecurityService;
+import mikkelmattern.utils.TreeUtil;
 
 import java.util.*;
 
@@ -100,14 +101,16 @@ public class NodeService {
         if (changes.content() != null) node.setContent(changes.content());
         if (changes.priorityNumber() != null) node.setPriorityNumber(changes.priorityNumber());
         if (changes.storyOrderNumber() != null) node.setStoryOrderNumber(changes.storyOrderNumber());
-
-        if (changes.parentId() != null) {
+        if (Boolean.TRUE.equals(changes.moveToTop())) {
+            node.setParent(null);
+        } else if (changes.parentId() != null) {
             Node newParent = findNodeOrThrow(changes.parentId());
             if (!newParent.getGuide().getId().equals(guide.getId())) {
                 throw new ApiException(400, "Parent node belongs to another guide");
             }
+            List<Node> guideNodes = nodeDao.findByGuideId(guide.getId());
             // A node can't be moved under itself or one of its own children, since that would make a loop
-            if (findSubtreeIds(id, guide.getId()).contains(newParent.getId())) {
+            if (TreeUtil.collectSubtreeIds(id, guideNodes).contains(newParent.getId())) {
                 throw new ApiException(400, "A node can't be moved under itself");
             }
             node.setParent(newParent);
@@ -159,38 +162,8 @@ public class NodeService {
         Node node = findNodeOrThrow(id);
         Guide guide = findGuideOrThrow(node.getGuide().getId());
         securityService.verifyAccess(guide.getAuthor(), authUser);
-        nodeDao.deleteAll(findSubtreeIds(id, guide.getId()));
+        List<Node> guideNodes = nodeDao.findByGuideId(guide.getId());
+        nodeDao.deleteAll(TreeUtil.collectSubtreeIds(id, guideNodes));
         return NodeMapper.toAuthorDTO(node);
-    }
-
-    /**
-     * Finds the ids of a node and all nodes under it, at any depth.
-     *
-     * @param rootId  the id of the node at the top of the subtree
-     * @param guideId the id of the guide the node belongs to
-     * @return the root's id and the ids of all its descendants
-     */
-    private Set<Long> findSubtreeIds(long rootId, long guideId) {
-        // Group the child ids by their parent's id
-        Map<Long, List<Long>> childrenByParent = new HashMap<>();
-        for (Node n : nodeDao.findByGuideId(guideId)) {
-            if (n.getParent() != null) {
-                childrenByParent.computeIfAbsent(n.getParent().getId(), k -> new ArrayList<>()).add(n.getId());
-            }
-        }
-
-        // Walk down the tree from the root
-        Set<Long> ids = new HashSet<>();
-        Deque<Long> toVisit = new ArrayDeque<>();
-        toVisit.push(rootId);
-        while (!toVisit.isEmpty()) {
-            // Removes the first ID and returns it
-            Long current = toVisit.pop();
-            // Adds the current ID only if it does not exist in the Set
-            if (ids.add(current)) {
-                toVisit.addAll(childrenByParent.getOrDefault(current, List.of()));
-            }
-        }
-        return ids;
     }
 }

@@ -4,11 +4,11 @@
 # authorToken, otherToken and adminToken
 run ./Auth.http
 
-### --- SETUP: a guide owned by otheruser, and a second guide for the cross-guide test ---
+### --- SETUP: a guide owned by author, and a second guide for the cross-guide test ---
 
 ### Create the guide the nodes go in
 POST {{url}}/guides
-Authorization: Bearer {{otherToken}}
+Authorization: Bearer {{authorToken}}
 Content-Type: application/json
 
 { "title": "Node test guide" }
@@ -22,7 +22,7 @@ Content-Type: application/json
 
 ### Create a second guide
 POST {{url}}/guides
-Authorization: Bearer {{otherToken}}
+Authorization: Bearer {{authorToken}}
 Content-Type: application/json
 
 { "title": "Other guide" }
@@ -43,7 +43,7 @@ Content-Type: application/json
 
 ### Owner creates a top-level node
 POST {{url}}/guides/{{guideId}}/nodes
-Authorization: Bearer {{otherToken}}
+Authorization: Bearer {{authorToken}}
 Content-Type: application/json
 
 { "title": "Act 1", "storyOrderNumber": 1, "priorityNumber": 1 }
@@ -60,7 +60,7 @@ Content-Type: application/json
 
 ### Owner creates a child node
 POST {{url}}/guides/{{guideId}}/nodes
-Authorization: Bearer {{otherToken}}
+Authorization: Bearer {{authorToken}}
 Content-Type: application/json
 
 { "title": "Limgrave", "parentId": {{act1Id}}, "content": "Starting area" }
@@ -75,7 +75,7 @@ Content-Type: application/json
 
 ### Owner creates a grandchild node
 POST {{url}}/guides/{{guideId}}/nodes
-Authorization: Bearer {{otherToken}}
+Authorization: Bearer {{authorToken}}
 Content-Type: application/json
 
 { "title": "Church of Elleh", "parentId": {{childId}}, "content": "Smithing table and merchant" }
@@ -89,7 +89,7 @@ Content-Type: application/json
 
 ### Owner creates a second top-level node
 POST {{url}}/guides/{{guideId}}/nodes
-Authorization: Bearer {{otherToken}}
+Authorization: Bearer {{authorToken}}
 Content-Type: application/json
 
 { "title": "Act 2", "storyOrderNumber": 2 }
@@ -103,7 +103,7 @@ Content-Type: application/json
 
 ### Owner creates a node in the second guide
 POST {{url}}/guides/{{otherGuideId}}/nodes
-Authorization: Bearer {{otherToken}}
+Authorization: Bearer {{authorToken}}
 Content-Type: application/json
 
 { "title": "Node in other guide" }
@@ -117,7 +117,7 @@ Content-Type: application/json
 
 ### Create a node without a title
 POST {{url}}/guides/{{guideId}}/nodes
-Authorization: Bearer {{otherToken}}
+Authorization: Bearer {{authorToken}}
 Content-Type: application/json
 
 { "content": "No title" }
@@ -130,7 +130,7 @@ Content-Type: application/json
 
 ### Create a node with a parent from another guide
 POST {{url}}/guides/{{guideId}}/nodes
-Authorization: Bearer {{otherToken}}
+Authorization: Bearer {{authorToken}}
 Content-Type: application/json
 
 { "title": "Wrong parent", "parentId": {{otherGuideNodeId}} }
@@ -143,7 +143,7 @@ Content-Type: application/json
 
 ### Create a node in a guide that doesn't exist
 POST {{url}}/guides/999999/nodes
-Authorization: Bearer {{otherToken}}
+Authorization: Bearer {{authorToken}}
 Content-Type: application/json
 
 { "title": "Nowhere" }
@@ -156,7 +156,7 @@ Content-Type: application/json
 
 ### Someone else tries to add a node
 POST {{url}}/guides/{{guideId}}/nodes
-Authorization: Bearer {{authorToken}}
+Authorization: Bearer {{otherToken}}
 Content-Type: application/json
 
 { "title": "Not my guide" }
@@ -183,7 +183,7 @@ Content-Type: application/json
 
 ### Owner renames a node
 PUT {{url}}/nodes/{{childId}}
-Authorization: Bearer {{otherToken}}
+Authorization: Bearer {{authorToken}}
 Content-Type: application/json
 
 { "title": "Limgrave (updated)" }
@@ -198,7 +198,7 @@ Content-Type: application/json
 
 ### Owner changes the ordering numbers
 PUT {{url}}/nodes/{{childId}}
-Authorization: Bearer {{otherToken}}
+Authorization: Bearer {{authorToken}}
 Content-Type: application/json
 
 { "priorityNumber": 5, "storyOrderNumber": 3 }
@@ -214,7 +214,7 @@ Content-Type: application/json
 
 ### Update with a blank title
 PUT {{url}}/nodes/{{childId}}
-Authorization: Bearer {{otherToken}}
+Authorization: Bearer {{authorToken}}
 Content-Type: application/json
 
 { "title": "   " }
@@ -227,7 +227,7 @@ Content-Type: application/json
 
 ### Move a node under its own grandchild
 PUT {{url}}/nodes/{{act1Id}}
-Authorization: Bearer {{otherToken}}
+Authorization: Bearer {{authorToken}}
 Content-Type: application/json
 
 { "parentId": {{grandchildId}} }
@@ -240,7 +240,7 @@ Content-Type: application/json
 
 ### Move a node to a parent in another guide
 PUT {{url}}/nodes/{{childId}}
-Authorization: Bearer {{otherToken}}
+Authorization: Bearer {{authorToken}}
 Content-Type: application/json
 
 { "parentId": {{otherGuideNodeId}} }
@@ -253,7 +253,7 @@ Content-Type: application/json
 
 ### Owner moves Limgrave (with its child) from Act 1 to Act 2
 PUT {{url}}/nodes/{{childId}}
-Authorization: Bearer {{otherToken}}
+Authorization: Bearer {{authorToken}}
 Content-Type: application/json
 
 { "parentId": {{act2Id}} }
@@ -266,7 +266,7 @@ Content-Type: application/json
 
 ### Someone else tries to update a node
 PUT {{url}}/nodes/{{childId}}
-Authorization: Bearer {{authorToken}}
+Authorization: Bearer {{otherToken}}
 Content-Type: application/json
 
 { "title": "Hacked" }
@@ -279,7 +279,7 @@ Content-Type: application/json
 
 ### Update a node that doesn't exist
 PUT {{url}}/nodes/999999
-Authorization: Bearer {{otherToken}}
+Authorization: Bearer {{authorToken}}
 Content-Type: application/json
 
 { "title": "Nothing" }
@@ -294,7 +294,7 @@ Content-Type: application/json
 
 ### Someone else tries to delete a node
 DELETE {{url}}/nodes/{{act2Id}}
-Authorization: Bearer {{authorToken}}
+Authorization: Bearer {{otherToken}}
 
 > {%
     client.test("Non-owner cannot delete nodes", function () {
@@ -304,7 +304,7 @@ Authorization: Bearer {{authorToken}}
 
 ### Owner deletes Act 2, which now holds Limgrave and Church of Elleh
 DELETE {{url}}/nodes/{{act2Id}}
-Authorization: Bearer {{otherToken}}
+Authorization: Bearer {{authorToken}}
 
 > {%
     client.test("Owner can delete a node", function () {
@@ -316,7 +316,7 @@ Authorization: Bearer {{otherToken}}
 ### The grandchild was deleted with it
 # There is no GET /nodes/{id}, so an update is used to check that it's gone
 PUT {{url}}/nodes/{{grandchildId}}
-Authorization: Bearer {{otherToken}}
+Authorization: Bearer {{authorToken}}
 Content-Type: application/json
 
 { "title": "Still here?" }
@@ -329,7 +329,7 @@ Content-Type: application/json
 
 ### Act 1 was not deleted
 PUT {{url}}/nodes/{{act1Id}}
-Authorization: Bearer {{otherToken}}
+Authorization: Bearer {{authorToken}}
 Content-Type: application/json
 
 { "title": "Act 1" }
@@ -342,7 +342,7 @@ Content-Type: application/json
 
 ### Delete a node that doesn't exist
 DELETE {{url}}/nodes/999999
-Authorization: Bearer {{otherToken}}
+Authorization: Bearer {{authorToken}}
 
 > {%
     client.test("Deleting a missing node gives 404", function () {
@@ -354,7 +354,7 @@ Authorization: Bearer {{otherToken}}
 
 ### Delete the test guides
 DELETE {{url}}/guides/{{guideId}}
-Authorization: Bearer {{otherToken}}
+Authorization: Bearer {{authorToken}}
 
 > {%
     client.test("Test guide is deleted", function () {
@@ -364,7 +364,7 @@ Authorization: Bearer {{otherToken}}
 
 ### Delete the second guide
 DELETE {{url}}/guides/{{otherGuideId}}
-Authorization: Bearer {{otherToken}}
+Authorization: Bearer {{authorToken}}
 
 > {%
     client.test("Second guide is deleted", function () {

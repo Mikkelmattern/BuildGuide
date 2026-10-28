@@ -1,0 +1,217 @@
+@url = http://localhost:7070/api
+
+# Creates and logs in author, otheruser and admin, and creates a guide owned by author:
+#   Act 1                      (act1Id)
+#   ├── Limgrave               (limgraveId)
+#   │   └── Church of Elleh    (churchId)
+#   └── Stormveil Castle       (stormveilId)
+#   Act 2                      (act2Id)
+run ./Auth.http
+
+### --- LOGGED-IN USER: reveal, hide and reset ---
+
+### Otheruser reveals Act 1
+POST {{url}}/nodes/{{act1Id}}/reveal
+Authorization: Bearer {{otherToken}}
+
+> {%
+    client.test("Reveal returns 204", function () {
+        client.assert(response.status === 204, "Expected 204 but got " + response.status);
+    });
+%}
+
+### Act 1 and everything under it is revealed, Act 2 is not
+GET {{url}}/guides/{{guideId}}
+Authorization: Bearer {{otherToken}}
+
+> {%
+    client.test("Revealing Act 1 cascades to its whole subtree", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+
+        const act1 = response.body.nodes.find(n => n.title === "Act 1");
+        const act2 = response.body.nodes.find(n => n.title === "Act 2");
+        const limgrave = act1.children.find(n => n.title === "Limgrave");
+        const church = limgrave.children.find(n => n.title === "Church of Elleh");
+        const stormveil = act1.children.find(n => n.title === "Stormveil Castle");
+
+        client.assert(act1.revealed && act1.content !== null, "Act 1 should be revealed");
+        client.assert(limgrave.revealed && limgrave.content !== null, "Limgrave should be revealed");
+        client.assert(church.revealed && church.content !== null, "Church of Elleh should be revealed");
+        client.assert(stormveil.revealed && stormveil.content !== null, "Stormveil should be revealed");
+        client.assert(!act2.revealed && act2.content === null, "Act 2 should stay hidden");
+    });
+%}
+
+### Reveal Limgrave again, which is already revealed
+POST {{url}}/nodes/{{limgraveId}}/reveal
+Authorization: Bearer {{otherToken}}
+
+> {%
+    client.test("Revealing an already revealed node is fine", function () {
+        client.assert(response.status === 204, "Expected 204 but got " + response.status);
+    });
+%}
+
+### The author has revealed nothing, so sees nothing
+GET {{url}}/guides/{{guideId}}
+Authorization: Bearer {{authorToken}}
+
+> {%
+    client.test("One user's reveals don't affect another user", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+        const act1 = response.body.nodes.find(n => n.title === "Act 1");
+        client.assert(!act1.revealed && act1.content === null, "Author should not see otheruser's reveals");
+    });
+%}
+
+### Otheruser hides Limgrave
+DELETE {{url}}/nodes/{{limgraveId}}/reveal
+Authorization: Bearer {{otherToken}}
+
+> {%
+    client.test("Hide returns 204", function () {
+        client.assert(response.status === 204, "Expected 204 but got " + response.status);
+    });
+%}
+
+### Limgrave and the church are hidden, the rest of Act 1 is not
+GET {{url}}/guides/{{guideId}}
+Authorization: Bearer {{otherToken}}
+
+> {%
+    client.test("Hiding Limgrave also hides its subtree, but not its siblings", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+
+        const act1 = response.body.nodes.find(n => n.title === "Act 1");
+        const act2 = response.body.nodes.find(n => n.title === "Act 2");
+        const limgrave = act1.children.find(n => n.title === "Limgrave");
+        const church = limgrave.children.find(n => n.title === "Church of Elleh");
+        const stormveil = act1.children.find(n => n.title === "Stormveil Castle");
+
+        client.assert(act1.revealed && act1.content !== null, "Act 1 should still be revealed");
+        client.assert(stormveil.revealed && stormveil.content !== null, "Stormveil should still be revealed");
+        client.assert(!limgrave.revealed && limgrave.content === null, "Limgrave should be hidden");
+        client.assert(!church.revealed && church.content === null, "Church of Elleh should be hidden");
+        client.assert(!act2.revealed && act2.content === null, "Act 2 should stay hidden");
+    });
+%}
+
+### Otheruser resets the whole guide
+DELETE {{url}}/guides/{{guideId}}/reveals
+Authorization: Bearer {{otherToken}}
+
+> {%
+    client.test("Reset returns 204", function () {
+        client.assert(response.status === 204, "Expected 204 but got " + response.status);
+    });
+%}
+
+### Everything is hidden again
+GET {{url}}/guides/{{guideId}}
+Authorization: Bearer {{otherToken}}
+
+> {%
+    client.test("Resetting a guide hides every node", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+
+        const act1 = response.body.nodes.find(n => n.title === "Act 1");
+        const act2 = response.body.nodes.find(n => n.title === "Act 2");
+        const limgrave = act1.children.find(n => n.title === "Limgrave");
+        const church = limgrave.children.find(n => n.title === "Church of Elleh");
+        const stormveil = act1.children.find(n => n.title === "Stormveil Castle");
+
+        client.assert(!act1.revealed && act1.content === null, "Act 1 should be hidden");
+        client.assert(!limgrave.revealed && limgrave.content === null, "Limgrave should be hidden");
+        client.assert(!church.revealed && church.content === null, "Church of Elleh should be hidden");
+        client.assert(!stormveil.revealed && stormveil.content === null, "Stormveil should be hidden");
+        client.assert(!act2.revealed && act2.content === null, "Act 2 should be hidden");
+    });
+%}
+
+### --- GUEST: the same mechanic through the session ---
+# No Authorization header. IntelliJ keeps the session cookie between requests,
+# like a browser would.
+
+### A guest sees nothing at first
+GET {{url}}/guides/{{guideId}}
+
+> {%
+    client.test("Guest sees no content before revealing", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+        const act2 = response.body.nodes.find(n => n.title === "Act 2");
+        client.assert(!act2.revealed && act2.content === null, "Act 2 should be hidden for a new guest");
+    });
+%}
+
+### Guest reveals Act 2
+POST {{url}}/nodes/{{act2Id}}/reveal
+
+> {%
+    client.test("Guest can reveal", function () {
+        client.assert(response.status === 204, "Expected 204 but got " + response.status);
+    });
+%}
+
+### The guest now sees Act 2, but not Act 1
+GET {{url}}/guides/{{guideId}}
+
+> {%
+    client.test("Guest reveals are kept in the session", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+        const act1 = response.body.nodes.find(n => n.title === "Act 1");
+        const act2 = response.body.nodes.find(n => n.title === "Act 2");
+        client.assert(act2.revealed && act2.content !== null, "Act 2 should be revealed for the guest");
+        client.assert(!act1.revealed && act1.content === null, "Act 1 should stay hidden for the guest");
+    });
+%}
+
+### Guest hides Act 2 again
+DELETE {{url}}/nodes/{{act2Id}}/reveal
+
+> {%
+    client.test("Guest can hide", function () {
+        client.assert(response.status === 204, "Expected 204 but got " + response.status);
+    });
+%}
+
+### Act 2 is hidden for the guest again
+GET {{url}}/guides/{{guideId}}
+
+> {%
+    client.test("Guest hide removes the reveal from the session", function () {
+        const act2 = response.body.nodes.find(n => n.title === "Act 2");
+        client.assert(!act2.revealed && act2.content === null, "Act 2 should be hidden again");
+    });
+%}
+
+### --- ERRORS ---
+
+### Reveal a node that doesn't exist
+POST {{url}}/nodes/999999/reveal
+Authorization: Bearer {{otherToken}}
+
+> {%
+    client.test("Revealing a missing node gives 404", function () {
+        client.assert(response.status === 404, "Expected 404 but got " + response.status);
+    });
+%}
+
+### Hide a node that doesn't exist
+DELETE {{url}}/nodes/999999/reveal
+Authorization: Bearer {{otherToken}}
+
+> {%
+    client.test("Hiding a missing node gives 404", function () {
+        client.assert(response.status === 404, "Expected 404 but got " + response.status);
+    });
+%}
+
+### Reset a guide that doesn't exist
+DELETE {{url}}/guides/999999/reveals
+Authorization: Bearer {{otherToken}}
+
+> {%
+    client.test("Resetting a missing guide gives 404", function () {
+        client.assert(response.status === 404, "Expected 404 but got " + response.status);
+    });
+%}

@@ -6,10 +6,12 @@ import mikkelmattern.config.ApplicationConfig;
 import mikkelmattern.config.HibernateConfig;
 import mikkelmattern.controller.GuideController;
 import mikkelmattern.controller.NodeController;
+import mikkelmattern.controller.RevealController;
 import mikkelmattern.controller.UserController;
 import mikkelmattern.entities.User;
 import mikkelmattern.routes.GuideRoutes;
 import mikkelmattern.routes.NodeRoutes;
+import mikkelmattern.routes.RevealRoutes;
 import mikkelmattern.routes.UserRoutes;
 import mikkelmattern.enums.Role;
 import mikkelmattern.security.SecurityService;
@@ -17,6 +19,7 @@ import mikkelmattern.security.TokenService;
 import mikkelmattern.security.controller.SecurityController;
 import mikkelmattern.services.GuideService;
 import mikkelmattern.services.NodeService;
+import mikkelmattern.services.RevealService;
 import mikkelmattern.services.UserService;
 import mikkelmattern.utils.Utils;
 
@@ -57,6 +60,10 @@ public class Main {
         GuideController guideController = new GuideController(guideService);
         GuideRoutes guideRoutes = new GuideRoutes(guideController);
 
+        RevealService revealService = new RevealService(nodeDao, guideDao, revealDao, userDao);
+        RevealController revealController = new RevealController(revealService);
+        RevealRoutes revealRoutes = new RevealRoutes(revealController);
+
         // Test user (hbm2ddl.auto is "create", so the tables are empty on every start)
         User user = User.builder()
                 .username("admin")
@@ -74,6 +81,7 @@ public class Main {
                 .route(userRoutes.getRoutes())
                 .route(guideRoutes.getRoutes())
                 .route(nodeRoutes.getRoutes())
+                .route(revealRoutes.getRoutes())
                 .cors()
                 .security()
                 .apiExceptions()
