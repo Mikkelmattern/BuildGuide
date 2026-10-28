@@ -19,7 +19,11 @@ public class GameDaoImpl extends DAO implements IGameDao {
     public Game findByRawgId(long id) {
         return executeQuery(em ->
                 em.createQuery("SELECT g FROM Game g WHERE g.rawgId = :rawgId", Game.class)
-                        .setParameter("rawgId", id).getSingleResult()
+                        .setParameter("rawgId", id)
+                        .getResultList()
+                        .stream()
+                        .findFirst()
+                        .orElse(null)
         );
     }
 

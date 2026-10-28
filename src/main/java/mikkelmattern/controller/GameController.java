@@ -24,17 +24,12 @@ public class GameController {
 
     public void importGame(@NotNull Context context) {
         AuthUser authUser = context.attribute("user");
-        Long id = context.pathParamAsClass("id", Long.class).get();
-        context.json(gameService.importGame(id, authUser));
+        Long rawgId = context.pathParamAsClass("rawgId", Long.class).get();
+        context.json(gameService.importGame(rawgId, authUser)).status(201);
     }
 
     public void getGameById(@NotNull Context context) {
         Long id = context.pathParamAsClass("id", Long.class).get();
         context.json(gameService.getGameById(id));
-    }
-
-    public void getGuidesForGame(@NotNull Context context) {
-        Long id = context.pathParamAsClass("id", Long.class).get();
-        context.json((gameService.getGameById(id)));
     }
 }

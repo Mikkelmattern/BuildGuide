@@ -53,7 +53,7 @@ public class Main {
         UserController userController = new UserController(userService, securityService);
         UserRoutes userRoutes = new UserRoutes(userController);
 
-        GuideService guideService = new GuideService(guideDao, userDao, securityService, nodeDao, revealDao);
+        GuideService guideService = new GuideService(guideDao, userDao, securityService, nodeDao, revealDao, gameDao);
         GuideController guideController = new GuideController(guideService);
         GuideRoutes guideRoutes = new GuideRoutes(guideController);
 

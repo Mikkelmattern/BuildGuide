@@ -8,7 +8,12 @@ Content-Type: application/json
 
 { "username": "admin", "password": "test123" }
 
-> {% client.global.set("adminToken", response.body.token); %}
+> {%
+    client.test("Admin login works", function () {
+        client.assert(response.status === 200, "Admin login failed with " + response.status);
+    });
+    client.global.set("adminToken", response.body.token);
+%}
 
 ### Create author
 POST {{url}}/users
@@ -38,8 +43,93 @@ Content-Type: application/json
 
 > {% client.global.set("otherToken", response.body.token); %}
 
+### --- SETUP GAMES ---
+# Each game is found on RAWG by search, then imported.
+# An import gives 409 if the game is already in the database (no restart since the last run),
+# which is fine: the game is there either way.
+
+### Search RAWG for Elden Ring
+GET {{url}}/games/search?query=elden%20ring
+Authorization: Bearer {{adminToken}}
+
+> {% client.global.set("eldenRingRawgId", response.body[0].id); %}
+
+### Import Elden Ring
+POST {{url}}/games/import/{{eldenRingRawgId}}
+Authorization: Bearer {{adminToken}}
+
+> {%
+    client.test("Elden Ring is imported", function () {
+        client.assert(response.status === 201 || response.status === 409,
+            "Expected 201 or 409 but got " + response.status);
+    });
+%}
+
+### Search RAWG for Baldur's Gate 3
+GET {{url}}/games/search?query=baldurs%20gate%203
+Authorization: Bearer {{adminToken}}
+
+> {% client.global.set("bg3RawgId", response.body[0].id); %}
+
+### Import Baldur's Gate 3
+POST {{url}}/games/import/{{bg3RawgId}}
+Authorization: Bearer {{adminToken}}
+
+> {%
+    client.test("Baldur's Gate 3 is imported", function () {
+        client.assert(response.status === 201 || response.status === 409,
+            "Expected 201 or 409 but got " + response.status);
+    });
+%}
+
+### Search RAWG for Hollow Knight
+GET {{url}}/games/search?query=hollow%20knight
+Authorization: Bearer {{adminToken}}
+
+> {% client.global.set("hollowKnightRawgId", response.body[0].id); %}
+
+### Import Hollow Knight
+POST {{url}}/games/import/{{hollowKnightRawgId}}
+Authorization: Bearer {{adminToken}}
+
+> {%
+    client.test("Hollow Knight is imported", function () {
+        client.assert(response.status === 201 || response.status === 409,
+            "Expected 201 or 409 but got " + response.status);
+    });
+%}
+
+### Search RAWG for The Witcher 3
+GET {{url}}/games/search?query=the%20witcher%203
+Authorization: Bearer {{adminToken}}
+
+> {% client.global.set("witcherRawgId", response.body[0].id); %}
+
+### Import The Witcher 3
+POST {{url}}/games/import/{{witcherRawgId}}
+Authorization: Bearer {{adminToken}}
+
+> {%
+    client.test("The Witcher 3 is imported", function () {
+        client.assert(response.status === 201 || response.status === 409,
+            "Expected 201 or 409 but got " + response.status);
+    });
+%}
+
+### Look up the database id of Elden Ring
+GET {{url}}/games
+
+> {%
+    client.test("Imported games are in the database", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+        client.assert(response.body.length >= 4, "Expected at least 4 games but got " + response.body.length);
+    });
+    const eldenRing = response.body.find(g => g.rawgId == client.global.get("eldenRingRawgId"));
+    client.global.set("gameId", eldenRing.id);
+%}
+
 ### --- SETUP GUIDE ---
-# A guide owned by author, with this tree:
+# A guide owned by author, for Elden Ring (gameId), with this tree:
 #   Act 1                      (act1Id)
 #   ├── Limgrave               (limgraveId)
 #   │   └── Church of Elleh    (churchId)
@@ -51,11 +141,12 @@ POST {{url}}/guides
 Authorization: Bearer {{authorToken}}
 Content-Type: application/json
 
-{ "title": "Setup guide" }
+{ "title": "Setup guide", "gameId": {{gameId}} }
 
 > {%
     client.test("Setup guide is created", function () {
         client.assert(response.status === 201, "Expected 201 but got " + response.status);
+        client.assert(response.body.gameId == client.global.get("gameId"), "Guide is not linked to the game");
     });
     client.global.set("guideId", response.body.id);
 %}

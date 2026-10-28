@@ -4,30 +4,39 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="30ccf195-beee-451c-b423-c20e3c2031d1" name="Changes" comment="Added TokenDTO and RevealDTO">
-      <change afterPath="$PROJECT_DIR$/http/Reveals.http" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/controller/RevealController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/routes/RevealRoutes.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/services/RevealService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/utils/TreeUtil.java" afterDir="false" />
+    <list default="true" id="30ccf195-beee-451c-b423-c20e3c2031d1" name="Changes" comment="Added external rawg api and added a game entity, controller, service, dto, dao and RawgClient">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/http/Auth.http" beforeDir="false" afterPath="$PROJECT_DIR$/http/Auth.http" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/http/Nodes.http" beforeDir="false" afterPath="$PROJECT_DIR$/http/Nodes.http" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/http/Guides.http" beforeDir="false" afterPath="$PROJECT_DIR$/http/Guides.http" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/GameDaoImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/GameDaoImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/DTOs/GuideDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DTOs/GuideDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/DTOs/GuideSummaryDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DTOs/GuideSummaryDTO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/records/NodeRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/records/NodeRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/services/NodeService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/services/NodeService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/controller/GameController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/controller/GameController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/controller/GuideController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/controller/GuideController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/mappers/GuideMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/mappers/GuideMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/records/GuideRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/records/GuideRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/routes/GameRoutes.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/routes/GameRoutes.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/routes/GuideRoutes.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/routes/GuideRoutes.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/security/controller/SecurityController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/security/controller/SecurityController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/services/GameService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/services/GameService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/services/GuideService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/services/GuideService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/config.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/config.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="CodeInsightWorkspaceSettings">
+    <option name="optimizeImportsOnTheFly" value="true" />
+  </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Enum" />
-        <option value="Interface" />
         <option value="Record" />
+        <option value="Interface" />
         <option value="Class" />
       </list>
     </option>
@@ -70,6 +79,7 @@
     "HTTP Request.All in Nodes.executor": "Run",
     "HTTP Request.All in Reveals.executor": "Run",
     "HTTP Request.All in Users.executor": "Run",
+    "HTTP Request.Auth | --- SETUP: run these first ---.executor": "Run",
     "HTTP Request.Guides | #1.executor": "Run",
     "HTTP Request.Guides | Add a guide.executor": "Run",
     "HTTP Request.Guides | All guides.executor": "Run",
@@ -106,6 +116,7 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "editor.preferences.completion",
     "to.speed.mode.migration.done": "true",
     "vue.rearranger.settings.migration": "true"
   }
@@ -135,11 +146,11 @@
         <entry key="HttpClient.HttpRequestRunConfigurationType">
           <value>
             <map>
-              <entry key="Reveals | Check that the entire guide is unrevealed" value="STOPPED" />
-              <entry key="Reveals | Check that the section has been removed and shuld cascade to church as well" value="STOPPED" />
-              <entry key="Reveals | Check that the section has been revealed" value="STOPPED" />
-              <entry key="Reveals | Remove a reveal one layer deep in the tree" value="STOPPED" />
-              <entry key="Reveals | Remove all of the reveals from the guide" value="STOPPED" />
+              <entry key="All in Auth" value="STOPPED" />
+              <entry key="All in Guides" value="STOPPED" />
+              <entry key="All in Nodes" value="STOPPED" />
+              <entry key="All in Reveals" value="STOPPED" />
+              <entry key="All in Users" value="STOPPED" />
             </map>
           </value>
         </entry>
@@ -154,28 +165,28 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Reveals | Check that the entire guide is unrevealed" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/http/Reveals.http" executionIdentifier="Check that the entire guide is unrevealed" index="7" runType="Run single request">
+    <configuration name="All in Auth" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" path="$PROJECT_DIR$/http/Auth.http">
       <method v="2" />
     </configuration>
-    <configuration name="Reveals | Check that the section has been removed and shuld cascade to church as well" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/http/Reveals.http" executionIdentifier="Check that the section has been removed and shuld cascade to church as well" index="5" runType="Run single request">
+    <configuration name="All in Guides" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" path="$PROJECT_DIR$/http/Guides.http">
       <method v="2" />
     </configuration>
-    <configuration name="Reveals | Check that the section has been revealed" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/http/Reveals.http" executionIdentifier="Check that the section has been revealed" index="3" runType="Run single request">
+    <configuration name="All in Nodes" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" path="$PROJECT_DIR$/http/Nodes.http">
       <method v="2" />
     </configuration>
-    <configuration name="Reveals | Remove a reveal one layer deep in the tree" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/http/Reveals.http" executionIdentifier="Remove a reveal one layer deep in the tree" index="4" runType="Run single request">
+    <configuration name="All in Reveals" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" path="$PROJECT_DIR$/http/Reveals.http">
       <method v="2" />
     </configuration>
-    <configuration name="Reveals | Remove all of the reveals from the guide" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/http/Reveals.http" executionIdentifier="Remove all of the reveals from the guide" index="6" runType="Run single request">
+    <configuration name="All in Users" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" path="$PROJECT_DIR$/http/Users.http">
       <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="HTTP Request.Reveals | Check that the entire guide is unrevealed" />
-        <item itemvalue="HTTP Request.Reveals | Remove all of the reveals from the guide" />
-        <item itemvalue="HTTP Request.Reveals | Check that the section has been removed and shuld cascade to church as well" />
-        <item itemvalue="HTTP Request.Reveals | Remove a reveal one layer deep in the tree" />
-        <item itemvalue="HTTP Request.Reveals | Check that the section has been revealed" />
+        <item itemvalue="HTTP Request.All in Users" />
+        <item itemvalue="HTTP Request.All in Reveals" />
+        <item itemvalue="HTTP Request.All in Nodes" />
+        <item itemvalue="HTTP Request.All in Guides" />
+        <item itemvalue="HTTP Request.All in Auth" />
       </list>
     </recent_temporary>
   </component>
@@ -197,7 +208,7 @@
       <workItem from="1787324807367" duration="28840000" />
       <workItem from="1790151521601" duration="662000" />
       <workItem from="1791831742806" duration="9153000" />
-      <workItem from="1792405158334" duration="54596000" />
+      <workItem from="1792405158334" duration="71785000" />
     </task>
     <task id="LOCAL-00001" summary="Added entire login flow with BCrypt hashing of password and signed tokens">
       <option name="closed" value="true" />
@@ -255,7 +266,23 @@
       <option name="project" value="LOCAL" />
       <updated>1793011379794</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Added the reveal flow">
+      <option name="closed" value="true" />
+      <created>1793191120296</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1793191120296</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Added external rawg api and added a game entity, controller, service, dto, dao and RawgClient">
+      <option name="closed" value="true" />
+      <created>1793200209448</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1793200209448</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -269,6 +296,8 @@
     <MESSAGE value="Added auth tests" />
     <MESSAGE value="Added auth tests (And some unversioned files)" />
     <MESSAGE value="Added TokenDTO and RevealDTO" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added TokenDTO and RevealDTO" />
+    <MESSAGE value="Added the reveal flow" />
+    <MESSAGE value="Added external rawg api and added a game entity, controller, service, dto, dao and RawgClient" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added external rawg api and added a game entity, controller, service, dto, dao and RawgClient" />
   </component>
 </project>

@@ -21,14 +21,15 @@ public class GameRoutes implements IRoutes {
      */
     @Override
     public EndpointGroup getRoutes() {
-        return path("games", () -> {
-            get(gameController::getAllGames, Role.ANYONE);
-            get("search", gameController::searchRawg, Role.ADMIN);           // ?query=elden
-            post("import/{rawgId}", gameController::importGame, Role.ADMIN);
-            path("{id}", () -> {
-                get(gameController::getGameById, Role.ANYONE);
-                get("guides", gameController::getGuidesForGame, Role.ANYONE);
+        return () -> {
+            path("games", () -> {
+                get(gameController::getAllGames, Role.ANYONE);
+                get("search", gameController::searchRawg, Role.ADMIN);
+                post("import/{rawgId}", gameController::importGame, Role.ADMIN);
+                path("{id}", () -> {
+                    get(gameController::getGameById, Role.ANYONE);
+                });
             });
-        });
+        };
     }
 }

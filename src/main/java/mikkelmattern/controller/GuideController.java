@@ -95,7 +95,7 @@ public class GuideController {
     }
 
     public void getGuidesByGame(@NotNull Context context) {
-            Long id = context.pathParamAsClass("id", Long.class).get();
+            Long id = context.pathParamAsClass("gameId", Long.class).get();
             context.json((guideService.getGuidesByGame(id)));
 
     }

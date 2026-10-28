@@ -54,7 +54,11 @@ public class GameService {
        return games.stream().map(GameMapper::toDTO).toList();
     }
 
-    public GameDTO getGameById(Long id){
-        return GameMapper.toDTO(gameDao.findById(id));
+    public GameDTO getGameById(long id) {
+        Game game = gameDao.findById(id);
+        if (game == null) {
+            throw new ApiException(404, "Game not found");
+        }
+        return GameMapper.toDTO(game);
     }
 }

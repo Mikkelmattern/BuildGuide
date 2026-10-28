@@ -1,8 +1,10 @@
 package mikkelmattern.services;
 
+import lombok.AllArgsConstructor;
 import mikkelmattern.DAOs.*;
 import mikkelmattern.DTOs.GuideDTO;
 import mikkelmattern.DTOs.GuideSummaryDTO;
+import mikkelmattern.entities.Game;
 import mikkelmattern.entities.Guide;
 import mikkelmattern.entities.Node;
 import mikkelmattern.entities.User;
@@ -19,27 +21,14 @@ import java.util.Set;
  * Business logic for guides. Calls the DAOs, checks who may change a guide,
  * and converts the results to {@link GuideDTO}s.
  */
+@AllArgsConstructor
 public class GuideService {
     private final IGuideDao guideDao;
     private final IUserDao userDao;
     private final SecurityService securityService;
     private final INodeDao nodeDao;
     private final IRevealDao revealDao;
-
-    /**
-     * Creates a guide service.
-     *
-     * @param guideDao        the DAO used to read and write guides
-     * @param userDao         the DAO used to look up a guide's author
-     * @param securityService the service used to check that a user owns a guide
-     */
-    public GuideService(IGuideDao guideDao, IUserDao userDao, SecurityService securityService, INodeDao nodeDao, IRevealDao revealDao) {
-        this.guideDao = guideDao;
-        this.userDao = userDao;
-        this.securityService = securityService;
-        this.nodeDao = nodeDao;
-        this.revealDao = revealDao;
-    }
+    private final IGameDao gameDao;
 
     /**
      * Gets all guides.
@@ -79,6 +68,9 @@ public class GuideService {
     }
 
     public List<GuideSummaryDTO> getGuidesByGame(long id) {
+        if (gameDao.findById(id) == null) {
+            throw new ApiException(404, "Game not found");
+        }
         List<Guide> guides = guideDao.getGuidesByGame(id);
         return guides.stream().map(GuideMapper::toSummaryDTO).toList();
     }
@@ -106,9 +98,18 @@ public class GuideService {
             throw new ApiException(404, "Could not find the user");
         }
 
+        Game game = null;
+        if (guideDTO.gameId() != null) {
+            game = gameDao.findById(guideDTO.gameId());
+            if (game == null) {
+                throw new ApiException(404, "Game not found");
+            }
+        }
+
         Guide guide = Guide.builder()
                 .title(guideDTO.title())
                 .author(author)
+                .game(game)
                 .build();
         return GuideMapper.toDTO(guideDao.create(guide));
     }

@@ -44,6 +44,7 @@ public class GuideMapper {
                 .updatedAt(guide.getUpdatedAt())
                 .authorId(guide.getAuthor().getId())
                 .authorUsername(guide.getAuthor().getUsername())
+                .gameId(guide.getGame() != null ? guide.getGame().getId() : null)
                 .build();
     }
 
@@ -69,24 +70,14 @@ public class GuideMapper {
      * @return the guide as a summary DTO
      */
     public static GuideSummaryDTO toSummaryDTO(Guide guide) {
-        return new GuideSummaryDTO(
-                guide.getId(),
-                guide.getTitle(),
-                guide.getAuthor().getUsername(),
-                guide.getUpdatedAt()
-        );
-    }
-
-    /**
-     * Converts a list of guides to summaries.
-     *
-     * @param guides the guides to convert
-     * @return the summaries, in the same order
-     */
-    public static List<GuideSummaryDTO> toSummaryDTOList(List<Guide> guides) {
-        return guides.stream()
-                .map(GuideMapper::toSummaryDTO)
-                .toList();
+        return GuideSummaryDTO.builder()
+                .id(guide.getId())
+                .title(guide.getTitle())
+                .authorName(guide.getAuthor().getUsername())
+                .createdAt(guide.getCreatedAt())
+                .updatedAt(guide.getUpdatedAt())
+                .gameId(guide.getGame() != null ? guide.getGame().getId() : null)
+                .build();
     }
 
     /**

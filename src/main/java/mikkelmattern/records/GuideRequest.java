@@ -1,3 +1,3 @@
 package mikkelmattern.records;
 
-public record GuideRequest(String title) {}
+public record GuideRequest(String title, Long gameId) {}

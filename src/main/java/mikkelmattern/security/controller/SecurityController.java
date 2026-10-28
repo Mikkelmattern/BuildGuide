@@ -48,7 +48,21 @@ public class SecurityController implements ISecurityController {
     @Override
     public void authenticate(@NotNull Context ctx) {
         // 1. Open routes and CORS preflight requests need no token
-        if (isOpenRoute(ctx) || ctx.method() == HandlerType.OPTIONS) {
+        if (ctx.method() == HandlerType.OPTIONS) {
+            return;
+        }
+
+        // Open routes work without a token, but if one is sent, the user is still read,
+        // so e.g. GET /guides/{id} can show a logged-in reader's saved reveals
+        if (isOpenRoute(ctx)) {
+            String header = ctx.header("Authorization");
+            if (header != null && header.startsWith("Bearer ")) {
+                try {
+                    ctx.attribute("user", tokenService.verify(header.substring("Bearer ".length())));
+                } catch (ApiException e) {
+                    // An invalid or expired token on an open route just means the request is a guest's
+                }
+            }
             return;
         }
 

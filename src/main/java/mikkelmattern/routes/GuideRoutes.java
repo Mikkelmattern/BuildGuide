@@ -46,10 +46,8 @@ public class GuideRoutes implements IRoutes {
                     delete(guideController::deleteGuide, Role.USER, Role.ADMIN);
                 });
             });
-            path("games", () -> {
-                path("{id}", () -> {
+            path("games/{gameId}/guides", () -> {
                     get(guideController::getGuidesByGame, Role.ANYONE);
-                });
             });
         };
     }

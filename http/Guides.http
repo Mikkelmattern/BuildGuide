@@ -1,13 +1,136 @@
 @url = http://localhost:7070/api
 
+# Creates and logs in author, otheruser and admin, and sets
+# authorToken, otherToken and adminToken
 run ./Auth.http
 
-### Add a guide
-POST {{url}}/guides
+### --- GAMES: search RAWG and import a game ---
+
+### Get all games
+GET {{url}}/games
+
+> {%
+    client.test("All games returns a list", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+        client.assert(Array.isArray(response.body), "Response is not a list");
+    });
+%}
+
+### Admin searches RAWG
+GET {{url}}/games/search?query=elden%20ring
+Authorization: Bearer {{adminToken}}
+
+> {%
+    client.test("Admin can search RAWG", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+        client.assert(Array.isArray(response.body), "Response is not a list");
+        client.assert(response.body.length > 0, "No results for 'elden ring'");
+        client.assert(response.body[0].id && response.body[0].name, "Results should have an id and a name");
+    });
+    client.global.set("rawgId", response.body[0].id);
+%}
+
+### Normal user tries to search RAWG
+GET {{url}}/games/search?query=elden%20ring
 Authorization: Bearer {{otherToken}}
+
+> {%
+    client.test("Normal user cannot search RAWG", function () {
+        client.assert(response.status === 403, "Expected 403 but got " + response.status);
+    });
+%}
+
+### Guest tries to search RAWG
+GET {{url}}/games/search?query=elden%20ring
+
+> {%
+    client.test("Guest cannot search RAWG", function () {
+        client.assert(response.status === 401, "Expected 401 but got " + response.status);
+    });
+%}
+
+### Search without a query
+GET {{url}}/games/search
+Authorization: Bearer {{adminToken}}
+
+> {%
+    client.test("Missing search query gives 400", function () {
+        client.assert(response.status === 400, "Expected 400 but got " + response.status);
+    });
+%}
+
+### Admin imports the first search result
+# 409 is accepted too, in case the game was imported by an earlier run without a restart
+POST {{url}}/games/import/{{rawgId}}
+Authorization: Bearer {{adminToken}}
+
+> {%
+    client.test("Admin can import a game", function () {
+        client.assert(response.status === 201 || response.status === 409,
+            "Expected 201 or 409 but got " + response.status);
+    });
+%}
+
+### Importing the same game again
+POST {{url}}/games/import/{{rawgId}}
+Authorization: Bearer {{adminToken}}
+
+> {%
+    client.test("Importing a game twice gives 409", function () {
+        client.assert(response.status === 409, "Expected 409 but got " + response.status);
+    });
+%}
+
+### Normal user tries to import a game
+POST {{url}}/games/import/{{rawgId}}
+Authorization: Bearer {{otherToken}}
+
+> {%
+    client.test("Normal user cannot import games", function () {
+        client.assert(response.status === 403, "Expected 403 but got " + response.status);
+    });
+%}
+
+### The imported game is in the list
+GET {{url}}/games
+
+> {%
+    client.test("Imported game appears in all games", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+        const rawgId = client.global.get("rawgId");
+        const game = response.body.find(g => g.rawgId == rawgId);
+        client.assert(game, "Imported game is not in the list");
+        client.global.set("gameId", game.id);
+    });
+%}
+
+### Get the game by id
+GET {{url}}/games/{{gameId}}
+
+> {%
+    client.test("Get game returns the right game", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+        client.assert(response.body.id == client.global.get("gameId"), "Wrong game returned");
+    });
+%}
+
+### Unknown game gives 404
+GET {{url}}/games/999999
+
+> {%
+    client.test("Missing game gives 404", function () {
+        client.assert(response.status === 404, "Expected 404 but got " + response.status);
+    });
+%}
+
+### --- GUIDES ---
+
+### Author adds a guide for the imported game
+POST {{url}}/guides
+Authorization: Bearer {{authorToken}}
 Content-Type: application/json
 
-{ "title": "Elden Ring: 100% route" }
+{ "title": "Elden Ring: 100% route", "gameId": {{gameId}} }
 
 > {%
     client.test("Create guide returns 201 with an id", function () {
@@ -16,6 +139,27 @@ Content-Type: application/json
         client.assert(response.body.title === "Elden Ring: 100% route", "Wrong title");
     });
     client.global.set("guideId", response.body.id);
+%}
+
+### Guides for the game include the new guide
+GET {{url}}/games/{{gameId}}/guides
+
+> {%
+    client.test("Guides for a game include its guides", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+        client.assert(Array.isArray(response.body), "Response is not a list");
+        const guideId = client.global.get("guideId");
+        client.assert(response.body.some(g => g.id == guideId), "New guide is not listed for its game");
+    });
+%}
+
+### Guides for a game that doesn't exist
+GET {{url}}/games/999999/guides
+
+> {%
+    client.test("Guides for a missing game gives 404", function () {
+        client.assert(response.status === 404, "Expected 404 but got " + response.status);
+    });
 %}
 
 ### Get all guides
@@ -50,7 +194,7 @@ GET {{url}}/guides/999999
 
 ### Owner updates the guide
 PUT {{url}}/guides/{{guideId}}
-Authorization: Bearer {{otherToken}}
+Authorization: Bearer {{authorToken}}
 Content-Type: application/json
 
 { "title": "Updated title" }
@@ -64,7 +208,7 @@ Content-Type: application/json
 
 ### Someone else tries to update it
 PUT {{url}}/guides/{{guideId}}
-Authorization: Bearer {{authorToken}}
+Authorization: Bearer {{otherToken}}
 Content-Type: application/json
 
 { "title": "Hacked" }
@@ -87,9 +231,19 @@ Content-Type: application/json
     });
 %}
 
-### Owner deletes the guide
+### Someone else tries to delete it
 DELETE {{url}}/guides/{{guideId}}
 Authorization: Bearer {{otherToken}}
+
+> {%
+    client.test("Non-owner cannot delete guide", function () {
+        client.assert(response.status === 403, "Expected 403 but got " + response.status);
+    });
+%}
+
+### Owner deletes the guide
+DELETE {{url}}/guides/{{guideId}}
+Authorization: Bearer {{authorToken}}
 
 > {%
     client.test("Owner can delete guide", function () {
