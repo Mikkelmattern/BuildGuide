@@ -28,7 +28,7 @@ public class GuideDaoImpl extends DAO implements IGuideDao {
     }
 
     @Override
-    public Guide save(Guide guide) {
+    public Guide create(Guide guide) {
         executeUpdate(em -> em.persist(guide));
         return guide;
     }
@@ -84,6 +84,13 @@ public class GuideDaoImpl extends DAO implements IGuideDao {
                     .setParameter("userId", userId)
                     .getResultList();
         });
+    }
+
+    @Override
+    public List<Guide> getGuidesByGame(long gameId) {
+        return executeQuery(em ->
+                em.createQuery("SELECT g FROM Guide g WHERE g.game.id = :gameId", Guide.class)
+                        .setParameter("gameId", gameId).getResultList());
     }
 
     /**

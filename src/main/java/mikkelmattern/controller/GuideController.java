@@ -2,7 +2,6 @@ package mikkelmattern.controller;
 
 import io.javalin.http.Context;
 import mikkelmattern.DTOs.GuideDTO;
-import mikkelmattern.entities.Guide;
 import mikkelmattern.enums.ReadingMode;
 import mikkelmattern.security.AuthUser;
 import mikkelmattern.services.GuideService;
@@ -93,5 +92,11 @@ public class GuideController {
         long id = ctx.pathParamAsClass("id", Long.class).get();
         AuthUser authUser = ctx.attribute("user");
         ctx.json(guideService.deleteGuide(id, authUser));
+    }
+
+    public void getGuidesByGame(@NotNull Context context) {
+            Long id = context.pathParamAsClass("id", Long.class).get();
+            context.json((guideService.getGuidesByGame(id)));
+
     }
 }

@@ -1,7 +1,6 @@
 package mikkelmattern.security;
 
 import mikkelmattern.DAOs.IUserDao;
-import mikkelmattern.DAOs.UserDaoImpl;
 import mikkelmattern.DTOs.UserOutDTO;
 import mikkelmattern.entities.User;
 import mikkelmattern.exceptions.ApiException;
@@ -73,7 +72,7 @@ public class SecurityService {
      * @param authUser the logged-in user making the request
      * @return {@code true} if the user has the {@code "ADMIN"} role, otherwise {@code false}
      */
-    private boolean verifyAdminAccess(AuthUser authUser) {
+    public boolean verifyAdminAccess(AuthUser authUser) {
         return authUser.roles().contains("ADMIN");
     }
 
@@ -88,6 +87,10 @@ public class SecurityService {
     public void verifyAccess(User user, AuthUser authUser) {
         if (!(verifyAdminAccess(authUser) || verifyPersonalAccess(user, authUser)))
             throw new ApiException(403, "You can only change your own data");
+    }
+
+    public boolean verifyLoggedIn(User user, AuthUser authUser){
+        return authUser.roles().contains("USER") || authUser.roles().contains("ADMIN");
     }
 
 }

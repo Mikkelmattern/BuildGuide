@@ -33,7 +33,7 @@ public class GuideService {
      * @param userDao         the DAO used to look up a guide's author
      * @param securityService the service used to check that a user owns a guide
      */
-    public GuideService(IGuideDao guideDao, IUserDao userDao, SecurityService securityService, INodeDao nodeDao,IRevealDao revealDao) {
+    public GuideService(IGuideDao guideDao, IUserDao userDao, SecurityService securityService, INodeDao nodeDao, IRevealDao revealDao) {
         this.guideDao = guideDao;
         this.userDao = userDao;
         this.securityService = securityService;
@@ -70,12 +70,17 @@ public class GuideService {
 
         List<Node> nodesList = nodeDao.findByGuideId(id);
         Set<Long> revealedIds;
-        if (authUser != null){
+        if (authUser != null) {
             revealedIds = revealDao.findRevealedNodeIds(authUser.id(), id);
         } else {
             revealedIds = guestReveals != null ? guestReveals : Set.of();
         }
         return GuideMapper.toDTO(guide, nodesList, revealedIds, mode);
+    }
+
+    public List<GuideSummaryDTO> getGuidesByGame(long id) {
+        List<Guide> guides = guideDao.getGuidesByGame(id);
+        return guides.stream().map(GuideMapper::toSummaryDTO).toList();
     }
 
     /**
@@ -105,7 +110,7 @@ public class GuideService {
                 .title(guideDTO.title())
                 .author(author)
                 .build();
-        return GuideMapper.toDTO(guideDao.save(guide));
+        return GuideMapper.toDTO(guideDao.create(guide));
     }
 
     /**

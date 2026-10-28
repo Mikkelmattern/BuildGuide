@@ -2,25 +2,17 @@ package mikkelmattern;
 
 import jakarta.persistence.EntityManagerFactory;
 import mikkelmattern.DAOs.*;
+import mikkelmattern.clients.RawgClient;
 import mikkelmattern.config.ApplicationConfig;
 import mikkelmattern.config.HibernateConfig;
-import mikkelmattern.controller.GuideController;
-import mikkelmattern.controller.NodeController;
-import mikkelmattern.controller.RevealController;
-import mikkelmattern.controller.UserController;
+import mikkelmattern.controller.*;
 import mikkelmattern.entities.User;
-import mikkelmattern.routes.GuideRoutes;
-import mikkelmattern.routes.NodeRoutes;
-import mikkelmattern.routes.RevealRoutes;
-import mikkelmattern.routes.UserRoutes;
+import mikkelmattern.routes.*;
 import mikkelmattern.enums.Role;
 import mikkelmattern.security.SecurityService;
 import mikkelmattern.security.TokenService;
 import mikkelmattern.security.controller.SecurityController;
-import mikkelmattern.services.GuideService;
-import mikkelmattern.services.NodeService;
-import mikkelmattern.services.RevealService;
-import mikkelmattern.services.UserService;
+import mikkelmattern.services.*;
 import mikkelmattern.utils.Utils;
 
 /**
@@ -40,11 +32,16 @@ public class Main {
         IGuideDao guideDao = new GuideDaoImpl(entityManagerFactory);
         INodeDao nodeDao = new NodeDaoImpl(entityManagerFactory);
         IRevealDao revealDao = new RevealDaoImpl(entityManagerFactory);
+        IGameDao gameDao = new GameDaoImpl(entityManagerFactory);
+
+        // RawgClient
+        String apiKey = Utils.getPropertyValue("RAWG_API_KEY", "config.properties");
+        RawgClient rawgClient = new RawgClient(apiKey);
 
         // One TokenService, shared by both sides so tokens are signed and verified with the same secret
         String secret = Utils.getPropertyValue("SECRET_KEY", "config.properties");
         TokenService tokenService = new TokenService(secret);
-        SecurityService securityService = new SecurityService(userDao, tokenService);        // creates tokens
+        SecurityService securityService = new SecurityService(userDao, tokenService);     // creates tokens
         SecurityController securityController = new SecurityController(tokenService);           // verifies tokens
 
         // Services, controllers and routes
@@ -64,6 +61,10 @@ public class Main {
         RevealController revealController = new RevealController(revealService);
         RevealRoutes revealRoutes = new RevealRoutes(revealController);
 
+        GameService gameService = new GameService(rawgClient, gameDao, securityService);
+        GameController gameController = new GameController(gameService);
+        GameRoutes gameRoutes = new GameRoutes(gameController);
+
         // Test user (hbm2ddl.auto is "create", so the tables are empty on every start)
         User user = User.builder()
                 .username("admin")
@@ -82,6 +83,7 @@ public class Main {
                 .route(guideRoutes.getRoutes())
                 .route(nodeRoutes.getRoutes())
                 .route(revealRoutes.getRoutes())
+                .route(gameRoutes.getRoutes())
                 .cors()
                 .security()
                 .apiExceptions()

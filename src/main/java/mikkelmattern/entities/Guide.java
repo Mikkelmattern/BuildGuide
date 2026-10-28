@@ -50,6 +50,11 @@ public class Guide {
     @Builder.Default
     private List<User> savedBy = new java.util.ArrayList<>();
 
+    // The game associated with the guide
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "game_id")
+    private Game game;
+
     /**
      * Sets {@code createdAt} and {@code updatedAt} to now. Called by JPA before the guide is first saved.
      */

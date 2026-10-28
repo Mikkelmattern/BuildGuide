@@ -23,7 +23,7 @@ public interface IGuideDao {
      * @param guide the guide to save
      * @return the saved guide, with its generated id
      */
-    public Guide save(Guide guide);
+    public Guide create(Guide guide);
 
     /**
      * Updates an existing guide with the guide's current values.
@@ -43,4 +43,6 @@ public interface IGuideDao {
     public List<Guide> getAll();
 
     public List<Guide> findByAuthorId(long userId);
+
+    public List<Guide> getGuidesByGame(long gameId);
 }

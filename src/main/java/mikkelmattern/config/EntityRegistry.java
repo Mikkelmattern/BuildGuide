@@ -21,5 +21,6 @@ final class EntityRegistry {
         configuration.addAnnotatedClass(Guide.class);
         configuration.addAnnotatedClass(Node.class);
         configuration.addAnnotatedClass(Reveal.class);
+        configuration.addAnnotatedClass(Game.class);
     }
 }

@@ -2,7 +2,6 @@ package mikkelmattern.routes;
 
 import io.javalin.apibuilder.EndpointGroup;
 import mikkelmattern.controller.GuideController;
-import mikkelmattern.controller.NodeController;
 import mikkelmattern.enums.Role;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
@@ -45,6 +44,11 @@ public class GuideRoutes implements IRoutes {
                     get(guideController::getGuideById, Role.ANYONE);
                     put(guideController::updateGuide, Role.USER, Role.ADMIN);
                     delete(guideController::deleteGuide, Role.USER, Role.ADMIN);
+                });
+            });
+            path("games", () -> {
+                path("{id}", () -> {
+                    get(guideController::getGuidesByGame, Role.ANYONE);
                 });
             });
         };
