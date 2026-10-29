@@ -27,6 +27,7 @@ public record GuideDTO(
         Instant updatedAt,
         Long authorId,
         String authorUsername,
-        Long gameId
+        Long gameId,
+        boolean published
 ) {
 }

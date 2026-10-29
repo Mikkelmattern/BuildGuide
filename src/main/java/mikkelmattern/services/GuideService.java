@@ -57,6 +57,12 @@ public class GuideService {
                                  Set<Long> guestReveals, ReadingMode mode) {
         Guide guide = findGuideOrThrow(id);
 
+        // Drafts are only visible to their author and admins. Everyone else gets 404,
+        // so they can't tell that the guide exists
+        if (!guide.isPublished() && !securityService.hasAccess(guide.getAuthor(), authUser)) {
+            throw new ApiException(404, "Could not find the guide");
+        }
+
         List<Node> nodesList = nodeDao.findByGuideId(id);
         Set<Long> revealedIds;
         if (authUser != null) {
@@ -152,6 +158,25 @@ public class GuideService {
     }
 
     /**
+     * Publishes or unpublishes a guide. Only published guides are shown to guests and other users.
+     *
+     * @param id        the id of the guide
+     * @param published {@code true} to publish the guide, {@code false} to make it a draft again
+     * @param authUser  the logged-in user making the request
+     * @return the updated guide as a DTO
+     * @throws ApiException with status 404 if no guide has that id,
+     *                      or 403 if {@code authUser} is neither the author nor an admin
+     */
+    public GuideSummaryDTO setPublished(long id, boolean published, AuthUser authUser) {
+        Guide guide = findGuideOrThrow(id);
+        securityService.verifyAccess(guide.getAuthor(), authUser);
+
+        guide.setPublished(published);
+        guideDao.update(guide);
+        return GuideMapper.toSummaryDTO(guideDao.find(id));
+    }
+
+    /**
      * Finds a guide by id.
      *
      * @param id the guide's id
@@ -174,5 +199,13 @@ public class GuideService {
      */
     private boolean isBlank(String value) {
         return value == null || value.isBlank();
+    }
+
+    public List<GuideSummaryDTO> getMyGuides(AuthUser authUser) {
+        if (authUser == null || authUser.id() == null){
+            throw new ApiException(401, "You must be logged in");
+        }
+        List<Guide> guides = guideDao.findByAuthorId(authUser.id());
+        return guides.stream().map(GuideMapper::toSummaryDTO).toList();
     }
 }

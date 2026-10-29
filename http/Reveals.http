@@ -215,3 +215,11 @@ Authorization: Bearer {{otherToken}}
         client.assert(response.status === 404, "Expected 404 but got " + response.status);
     });
 %}
+
+### Otheruser reveals Act 1 again, so there are saved reveals when the guide is deleted
+POST {{url}}/nodes/{{act1Id}}/reveal
+Authorization: Bearer {{otherToken}}
+
+### Delete a guide with saved reveals
+DELETE {{url}}/guides/{{guideId}}
+Authorization: Bearer {{authorToken}}

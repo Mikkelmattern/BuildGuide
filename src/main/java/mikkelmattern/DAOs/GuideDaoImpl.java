@@ -68,7 +68,7 @@ public class GuideDaoImpl extends DAO implements IGuideDao {
      */
     @Override
     public List<Guide> getAll() {
-        return executeQuery(em -> em.createQuery("SELECT g FROM Guide g", Guide.class).getResultList());
+        return executeQuery(em -> em.createQuery("SELECT g FROM Guide g WHERE g.published = TRUE", Guide.class).getResultList());
     }
 
     /**
@@ -81,15 +81,15 @@ public class GuideDaoImpl extends DAO implements IGuideDao {
     public List<Guide> findByAuthorId(long userId) {
         return executeQuery(em -> {
             return em.createQuery("SELECT g FROM Guide g WHERE g.author.id = :userId", Guide.class)
-                    .setParameter("userId", userId)
-                    .getResultList();
+                     .setParameter("userId", userId)
+                     .getResultList();
         });
     }
 
     @Override
     public List<Guide> getGuidesByGame(long gameId) {
         return executeQuery(em ->
-                em.createQuery("SELECT g FROM Guide g WHERE g.game.id = :gameId", Guide.class)
+                em.createQuery("SELECT g FROM Guide g WHERE g.game.id = :gameId AND g.published = TRUE", Guide.class)
                         .setParameter("gameId", gameId).getResultList());
     }
 

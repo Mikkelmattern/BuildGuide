@@ -81,6 +81,11 @@ public class GuideController {
         ctx.json(guideService.updateGuide(id, changes, authUser));
     }
 
+    public void getMyAuthoredGuides(@NotNull Context context){
+        AuthUser authUser = context.attribute("user");
+        context.json(guideService.getMyGuides(authUser));
+    }
+
     /**
      * Deletes the guide with the {@code id} path parameter and returns it as JSON.
      * Only the author or an admin may do this. Handles {@code DELETE /guides/{id}}.
@@ -97,6 +102,17 @@ public class GuideController {
     public void getGuidesByGame(@NotNull Context context) {
             Long id = context.pathParamAsClass("gameId", Long.class).get();
             context.json((guideService.getGuidesByGame(id)));
+    }
 
+    public void publish(@NotNull Context context){
+        Long id = context.pathParamAsClass("gameId", Long.class).get();
+        AuthUser authUser = context.attribute("user");
+        context.json(guideService.setPublished(id, true, authUser));
+    }
+
+    public void unpublish(@NotNull Context context){
+        Long id = context.pathParamAsClass("gameId", Long.class).get();
+        AuthUser authUser = context.attribute("user");
+        context.json(guideService.setPublished(id, false, authUser));
     }
 }

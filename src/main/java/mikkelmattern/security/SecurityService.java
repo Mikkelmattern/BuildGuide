@@ -85,8 +85,12 @@ public class SecurityService {
      * @throws ApiException with status 403 if the user is neither the owner nor an admin
      */
     public void verifyAccess(User user, AuthUser authUser) {
-        if (!(verifyAdminAccess(authUser) || verifyPersonalAccess(user, authUser)))
+        if (!(hasAccess(user, authUser)))
             throw new ApiException(403, "You can only change your own data");
+    }
+
+    public boolean hasAccess(User user, AuthUser authUser) {
+        return verifyAdminAccess(authUser) || verifyPersonalAccess(user, authUser);
     }
 
     public boolean verifyLoggedIn(User user, AuthUser authUser){

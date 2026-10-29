@@ -55,6 +55,8 @@ public class Guide {
     @JoinColumn(name = "game_id")
     private Game game;
 
+    private boolean published;
+
     /**
      * Sets {@code createdAt} and {@code updatedAt} to now. Called by JPA before the guide is first saved.
      */
@@ -71,11 +73,4 @@ public class Guide {
     void onUpdate() {
         updatedAt = Instant.now();
     }
-
-    public void addNode(Node node){
-        nodes.add(node);
-        node.setGuide(this);
-    }
-
-
 }

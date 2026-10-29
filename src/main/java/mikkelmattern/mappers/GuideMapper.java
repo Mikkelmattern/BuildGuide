@@ -45,6 +45,7 @@ public class GuideMapper {
                 .authorId(guide.getAuthor().getId())
                 .authorUsername(guide.getAuthor().getUsername())
                 .gameId(guide.getGame() != null ? guide.getGame().getId() : null)
+                .published(guide.isPublished())
                 .build();
     }
 
@@ -77,6 +78,7 @@ public class GuideMapper {
                 .createdAt(guide.getCreatedAt())
                 .updatedAt(guide.getUpdatedAt())
                 .gameId(guide.getGame() != null ? guide.getGame().getId() : null)
+                .published(guide.isPublished())
                 .build();
     }
 
