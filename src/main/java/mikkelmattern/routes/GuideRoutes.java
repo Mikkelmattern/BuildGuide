@@ -40,6 +40,9 @@ public class GuideRoutes implements IRoutes {
             path("guides", () -> {
                 get(guideController::getAllGuides, Role.ANYONE);
                 post(guideController::createGuide, Role.USER, Role.ADMIN);
+                path("mine", () -> {
+                    get(guideController::getMyAuthoredGuides, Role.USER, Role.ADMIN);
+                });
                 path("{id}", () -> {
                     get(guideController::getGuideById, Role.ANYONE);
                     put(guideController::updateGuide, Role.USER, Role.ADMIN);
@@ -48,9 +51,6 @@ public class GuideRoutes implements IRoutes {
                         post(guideController::publish, Role.USER, Role.ADMIN);
                         delete(guideController::unpublish, Role.USER, Role.ADMIN);
                     });
-                });
-                path("mine", () -> {
-                    get(guideController::getMyAuthoredGuides, Role.USER, Role.ADMIN);
                 });
             });
             path("games/{gameId}/guides", () -> {

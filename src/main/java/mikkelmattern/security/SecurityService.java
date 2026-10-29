@@ -90,6 +90,9 @@ public class SecurityService {
     }
 
     public boolean hasAccess(User user, AuthUser authUser) {
+        if (authUser == null) {
+            return false;
+        }
         return verifyAdminAccess(authUser) || verifyPersonalAccess(user, authUser);
     }
 

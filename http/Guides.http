@@ -141,6 +141,16 @@ Content-Type: application/json
     client.global.set("guideId", response.body.id);
 %}
 
+### Author publishes the new guide
+POST {{url}}/guides/{{guideId}}/publish
+Authorization: Bearer {{authorToken}}
+
+> {%
+    client.test("New guide is published", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+    });
+%}
+
 ### Guides for the game include the new guide
 GET {{url}}/games/{{gameId}}/guides
 

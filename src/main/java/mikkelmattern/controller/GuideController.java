@@ -105,13 +105,13 @@ public class GuideController {
     }
 
     public void publish(@NotNull Context context){
-        Long id = context.pathParamAsClass("gameId", Long.class).get();
+        Long id = context.pathParamAsClass("id", Long.class).get();
         AuthUser authUser = context.attribute("user");
         context.json(guideService.setPublished(id, true, authUser));
     }
 
     public void unpublish(@NotNull Context context){
-        Long id = context.pathParamAsClass("gameId", Long.class).get();
+        Long id = context.pathParamAsClass("id", Long.class).get();
         AuthUser authUser = context.attribute("user");
         context.json(guideService.setPublished(id, false, authUser));
     }

@@ -1,0 +1,271 @@
+@url = http://localhost:7070/api
+
+# Creates and logs in author, otheruser and admin, imports the games and sets gameId
+run ./Auth.http
+
+### --- SETUP: a new guide, which starts as a draft ---
+
+### Author creates a guide
+POST {{url}}/guides
+Authorization: Bearer {{authorToken}}
+Content-Type: application/json
+
+{ "title": "Draft guide", "gameId": {{gameId}} }
+
+> {%
+    client.test("A new guide starts as a draft", function () {
+        client.assert(response.status === 201, "Expected 201 but got " + response.status);
+        client.assert(response.body.published === false, "New guide should not be published");
+    });
+    client.global.set("draftId", response.body.id);
+%}
+
+### --- DRAFT: only the author and admins can see it ---
+
+### Guest tries to open the draft
+GET {{url}}/guides/{{draftId}}
+
+> {%
+    client.test("Guest gets 404 on a draft", function () {
+        client.assert(response.status === 404, "Expected 404 but got " + response.status);
+    });
+%}
+
+### Other user tries to open the draft
+GET {{url}}/guides/{{draftId}}
+Authorization: Bearer {{otherToken}}
+
+> {%
+    client.test("Other user gets 404 on a draft", function () {
+        client.assert(response.status === 404, "Expected 404 but got " + response.status);
+    });
+%}
+
+### Author opens the draft
+GET {{url}}/guides/{{draftId}}
+Authorization: Bearer {{authorToken}}
+
+> {%
+    client.test("Author can see their own draft", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+        client.assert(response.body.published === false, "Guide should still be a draft");
+    });
+%}
+
+### Admin opens the draft
+GET {{url}}/guides/{{draftId}}
+Authorization: Bearer {{adminToken}}
+
+> {%
+    client.test("Admin can see any draft", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+    });
+%}
+
+### The draft is not in the list of all guides
+GET {{url}}/guides
+
+> {%
+    client.test("Drafts are left out of the guide list", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+        const draftId = client.global.get("draftId");
+        client.assert(!response.body.some(g => g.id == draftId), "Draft should not be listed");
+    });
+%}
+
+### The draft is not in the game's guides
+GET {{url}}/games/{{gameId}}/guides
+
+> {%
+    client.test("Drafts are left out of a game's guides", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+        const draftId = client.global.get("draftId");
+        client.assert(!response.body.some(g => g.id == draftId), "Draft should not be listed for its game");
+    });
+%}
+
+### --- MY GUIDES ---
+
+### Author lists their own guides
+GET {{url}}/guides/mine
+Authorization: Bearer {{authorToken}}
+
+> {%
+    client.test("My guides include my drafts", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+        const draft = response.body.find(g => g.id == client.global.get("draftId"));
+        client.assert(draft, "Draft should be in the author's guides");
+        client.assert(draft.published === false, "Draft should be marked as not published");
+    });
+%}
+
+### Other user lists their own guides
+GET {{url}}/guides/mine
+Authorization: Bearer {{otherToken}}
+
+> {%
+    client.test("My guides don't include other users' guides", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+        const draftId = client.global.get("draftId");
+        client.assert(!response.body.some(g => g.id == draftId), "Author's draft should not be listed");
+    });
+%}
+
+### Guest tries to list their guides
+GET {{url}}/guides/mine
+
+> {%
+    client.test("Guest cannot call guides/mine", function () {
+        client.assert(response.status === 401, "Expected 401 but got " + response.status);
+    });
+%}
+
+### --- PUBLISH ---
+
+### Other user tries to publish the guide
+POST {{url}}/guides/{{draftId}}/publish
+Authorization: Bearer {{otherToken}}
+
+> {%
+    client.test("Non-owner cannot publish", function () {
+        client.assert(response.status === 403, "Expected 403 but got " + response.status);
+    });
+%}
+
+### Guest tries to publish the guide
+POST {{url}}/guides/{{draftId}}/publish
+
+> {%
+    client.test("Guest cannot publish", function () {
+        client.assert(response.status === 401, "Expected 401 but got " + response.status);
+    });
+%}
+
+### Publish a guide that doesn't exist
+POST {{url}}/guides/999999/publish
+Authorization: Bearer {{authorToken}}
+
+> {%
+    client.test("Publishing a missing guide gives 404", function () {
+        client.assert(response.status === 404, "Expected 404 but got " + response.status);
+    });
+%}
+
+### Author publishes the guide
+POST {{url}}/guides/{{draftId}}/publish
+Authorization: Bearer {{authorToken}}
+
+> {%
+    client.test("Author can publish", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+        client.assert(response.body.published === true, "Guide should be published");
+    });
+%}
+
+### Author publishes it again
+POST {{url}}/guides/{{draftId}}/publish
+Authorization: Bearer {{authorToken}}
+
+> {%
+    client.test("Publishing twice keeps it published", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+        client.assert(response.body.published === true, "Guide should still be published");
+    });
+%}
+
+### Guest opens the published guide
+GET {{url}}/guides/{{draftId}}
+
+> {%
+    client.test("Guest can see a published guide", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+        client.assert(response.body.published === true, "Guide should be published");
+    });
+%}
+
+### The published guide is in the list of all guides
+GET {{url}}/guides
+
+> {%
+    client.test("Published guides are listed", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+        const draftId = client.global.get("draftId");
+        client.assert(response.body.some(g => g.id == draftId), "Published guide should be listed");
+    });
+%}
+
+### The published guide is in the game's guides
+GET {{url}}/games/{{gameId}}/guides
+
+> {%
+    client.test("Published guides are listed for their game", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+        const draftId = client.global.get("draftId");
+        client.assert(response.body.some(g => g.id == draftId), "Published guide should be listed for its game");
+    });
+%}
+
+### --- UNPUBLISH ---
+
+### Other user tries to unpublish the guide
+DELETE {{url}}/guides/{{draftId}}/publish
+Authorization: Bearer {{otherToken}}
+
+> {%
+    client.test("Non-owner cannot unpublish", function () {
+        client.assert(response.status === 403, "Expected 403 but got " + response.status);
+    });
+%}
+
+### Author unpublishes the guide
+DELETE {{url}}/guides/{{draftId}}/publish
+Authorization: Bearer {{authorToken}}
+
+> {%
+    client.test("Author can unpublish", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+        client.assert(response.body.published === false, "Guide should be a draft again");
+    });
+%}
+
+### Guest can no longer open it
+GET {{url}}/guides/{{draftId}}
+
+> {%
+    client.test("An unpublished guide is hidden again", function () {
+        client.assert(response.status === 404, "Expected 404 but got " + response.status);
+    });
+%}
+
+### Author publishes it again, so the admin can unpublish it
+POST {{url}}/guides/{{draftId}}/publish
+Authorization: Bearer {{authorToken}}
+
+> {%
+    client.test("Author can publish again", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+    });
+%}
+
+### Admin unpublishes someone else's guide
+DELETE {{url}}/guides/{{draftId}}/publish
+Authorization: Bearer {{adminToken}}
+
+> {%
+    client.test("Admin can unpublish any guide", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+        client.assert(response.body.published === false, "Guide should be a draft again");
+    });
+%}
+
+### --- CLEANUP ---
+
+### Author deletes the guide
+DELETE {{url}}/guides/{{draftId}}
+Authorization: Bearer {{authorToken}}
+
+> {%
+    client.test("Test guide is deleted", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+    });
+%}

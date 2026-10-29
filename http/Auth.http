@@ -220,3 +220,13 @@ Content-Type: application/json
     });
     client.global.set("act2Id", response.body.id);
 %}
+
+### Publish the setup guide, so the other test files can read it
+POST {{url}}/guides/{{guideId}}/publish
+Authorization: Bearer {{authorToken}}
+
+> {%
+    client.test("Setup guide is published", function () {
+        client.assert(response.status === 200, "Expected 200 but got " + response.status);
+    });
+%}

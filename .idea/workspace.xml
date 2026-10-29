@@ -4,18 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="30ccf195-beee-451c-b423-c20e3c2031d1" name="Changes" comment="Added external rawg api and added a game entity, controller, service, dto, dao and RawgClient">
+    <list default="true" id="30ccf195-beee-451c-b423-c20e3c2031d1" name="Changes" comment="Add published/draft status for guides&#10;&#10;- Add a published field to Guide (false by default) and include it in GuideDTO and GuideSummaryDTO&#10;- Add POST and DELETE /guides/{id}/publish to publish and unpublish a guide (author or admin)&#10;- Hide drafts from GET /guides/{id} with a 404 unless the user is the author or an admin&#10;- Only return published guides from GET /guides and GET /games/{id}/guides&#10;- Add GET /guides/mine, which returns the logged-in user's guides, drafts included&#10;- Add SecurityService.hasAccess, a boolean version of verifyAccess that also handles guests&#10;- Add tests for deleting a guide with a full node tree and saved reveals">
+      <change afterPath="$PROJECT_DIR$/http/Publish.http" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/config.properties.example" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/http/Reveals.http" beforeDir="false" afterPath="$PROJECT_DIR$/http/Reveals.http" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/GuideDaoImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DAOs/GuideDaoImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/DTOs/GuideDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DTOs/GuideDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/DTOs/GuideSummaryDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/DTOs/GuideSummaryDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/http/Auth.http" beforeDir="false" afterPath="$PROJECT_DIR$/http/Auth.http" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/http/Guides.http" beforeDir="false" afterPath="$PROJECT_DIR$/http/Guides.http" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/controller/GuideController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/controller/GuideController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/entities/Guide.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/entities/Guide.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/mappers/GuideMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/mappers/GuideMapper.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/routes/GuideRoutes.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/routes/GuideRoutes.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/security/SecurityService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/security/SecurityService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/services/GuideService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/services/GuideService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -71,6 +68,7 @@
     "HTTP Request.All in Auth.executor": "Run",
     "HTTP Request.All in Guides.executor": "Run",
     "HTTP Request.All in Nodes.executor": "Run",
+    "HTTP Request.All in Publish.executor": "Run",
     "HTTP Request.All in Reveals.executor": "Run",
     "HTTP Request.All in Users.executor": "Run",
     "HTTP Request.Auth | --- SETUP: run these first ---.executor": "Run",
@@ -143,11 +141,11 @@
         <entry key="HttpClient.HttpRequestRunConfigurationType">
           <value>
             <map>
+              <entry key="All in Guides" value="STOPPED" />
+              <entry key="All in Nodes" value="STOPPED" />
+              <entry key="All in Publish" value="STOPPED" />
               <entry key="All in Reveals" value="STOPPED" />
               <entry key="All in Users" value="STOPPED" />
-              <entry key="Reveals | Author deletes a guide with a full node tree and saved reveals" value="STOPPED" />
-              <entry key="Reveals | Delete a guide with saved reveals" value="STOPPED" />
-              <entry key="Reveals | Otheruser reveals Act 1 again, so there are saved reveals when the guide is deleted" value="STOPPED" />
             </map>
           </value>
         </entry>
@@ -162,28 +160,28 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="All in Guides" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" path="$PROJECT_DIR$/http/Guides.http">
+      <method v="2" />
+    </configuration>
+    <configuration name="All in Nodes" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" path="$PROJECT_DIR$/http/Nodes.http">
+      <method v="2" />
+    </configuration>
+    <configuration name="All in Publish" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" path="$PROJECT_DIR$/http/Publish.http">
+      <method v="2" />
+    </configuration>
     <configuration name="All in Reveals" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" path="$PROJECT_DIR$/http/Reveals.http">
       <method v="2" />
     </configuration>
     <configuration name="All in Users" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" path="$PROJECT_DIR$/http/Users.http">
       <method v="2" />
     </configuration>
-    <configuration name="Reveals | Author deletes a guide with a full node tree and saved reveals" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/http/Reveals.http" executionIdentifier="Author deletes a guide with a full node tree and saved reveals" index="18" runType="Run single request">
-      <method v="2" />
-    </configuration>
-    <configuration name="Reveals | Delete a guide with saved reveals" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/http/Reveals.http" executionIdentifier="Delete a guide with saved reveals" index="19" runType="Run single request">
-      <method v="2" />
-    </configuration>
-    <configuration name="Reveals | Otheruser reveals Act 1 again, so there are saved reveals when the guide is deleted" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/http/Reveals.http" executionIdentifier="Otheruser reveals Act 1 again, so there are saved reveals when the guide is deleted" index="18" runType="Run single request">
-      <method v="2" />
-    </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="HTTP Request.Reveals | Delete a guide with saved reveals" />
-        <item itemvalue="HTTP Request.Reveals | Otheruser reveals Act 1 again, so there are saved reveals when the guide is deleted" />
-        <item itemvalue="HTTP Request.All in Reveals" />
-        <item itemvalue="HTTP Request.Reveals | Author deletes a guide with a full node tree and saved reveals" />
+        <item itemvalue="HTTP Request.All in Publish" />
         <item itemvalue="HTTP Request.All in Users" />
+        <item itemvalue="HTTP Request.All in Reveals" />
+        <item itemvalue="HTTP Request.All in Nodes" />
+        <item itemvalue="HTTP Request.All in Guides" />
       </list>
     </recent_temporary>
   </component>
@@ -205,7 +203,7 @@
       <workItem from="1787324807367" duration="28840000" />
       <workItem from="1790151521601" duration="662000" />
       <workItem from="1791831742806" duration="9153000" />
-      <workItem from="1792405158334" duration="77667000" />
+      <workItem from="1792405158334" duration="79757000" />
     </task>
     <task id="LOCAL-00001" summary="Added entire login flow with BCrypt hashing of password and signed tokens">
       <option name="closed" value="true" />
@@ -287,7 +285,15 @@
       <option name="project" value="LOCAL" />
       <updated>1793224790805</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="Add published/draft status for guides&#10;&#10;- Add a published field to Guide (false by default) and include it in GuideDTO and GuideSummaryDTO&#10;- Add POST and DELETE /guides/{id}/publish to publish and unpublish a guide (author or admin)&#10;- Hide drafts from GET /guides/{id} with a 404 unless the user is the author or an admin&#10;- Only return published guides from GET /guides and GET /games/{id}/guides&#10;- Add GET /guides/mine, which returns the logged-in user's guides, drafts included&#10;- Add SecurityService.hasAccess, a boolean version of verifyAccess that also handles guests&#10;- Add tests for deleting a guide with a full node tree and saved reveals">
+      <option name="closed" value="true" />
+      <created>1793306632850</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1793306632850</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -303,6 +309,7 @@
     <MESSAGE value="Added TokenDTO and RevealDTO" />
     <MESSAGE value="Added the reveal flow" />
     <MESSAGE value="Added external rawg api and added a game entity, controller, service, dto, dao and RawgClient" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added external rawg api and added a game entity, controller, service, dto, dao and RawgClient" />
+    <MESSAGE value="Add published/draft status for guides&#10;&#10;- Add a published field to Guide (false by default) and include it in GuideDTO and GuideSummaryDTO&#10;- Add POST and DELETE /guides/{id}/publish to publish and unpublish a guide (author or admin)&#10;- Hide drafts from GET /guides/{id} with a 404 unless the user is the author or an admin&#10;- Only return published guides from GET /guides and GET /games/{id}/guides&#10;- Add GET /guides/mine, which returns the logged-in user's guides, drafts included&#10;- Add SecurityService.hasAccess, a boolean version of verifyAccess that also handles guests&#10;- Add tests for deleting a guide with a full node tree and saved reveals" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add published/draft status for guides&#10;&#10;- Add a published field to Guide (false by default) and include it in GuideDTO and GuideSummaryDTO&#10;- Add POST and DELETE /guides/{id}/publish to publish and unpublish a guide (author or admin)&#10;- Hide drafts from GET /guides/{id} with a 404 unless the user is the author or an admin&#10;- Only return published guides from GET /guides and GET /games/{id}/guides&#10;- Add GET /guides/mine, which returns the logged-in user's guides, drafts included&#10;- Add SecurityService.hasAccess, a boolean version of verifyAccess that also handles guests&#10;- Add tests for deleting a guide with a full node tree and saved reveals" />
   </component>
 </project>
