@@ -1,216 +1,331 @@
 # Build Guide API
 
-A REST API for spoiler-free game guides. A guide is a tree of sections (acts, areas, locations, items) of any depth, and readers reveal the content one section at a time as they reach it in the game, so they never see more than they want to.
+## Project Overview
 
-The same guide can be read in two orders: **story order**, which follows the game and avoids spoilers, and **fastest route**, which puts the most useful items first.
+**Vision:** Build Guide lets players follow a game guide without spoilers. Guides are trees of sections that stay hidden until the reader reveals them, and the same guide can be read in story order or as the fastest route.
 
-Backend only. Built with Java, Javalin 7, Hibernate 7 (JPA) and PostgreSQL. Game data is imported from the [RAWG](https://rawg.io/apidocs) API.
+- **Portfolio:** [![Portfolio](https://img.shields.io/badge/Portfolio-Visit-blue)](https://mikkelmattern.github.io/BlowfishRepo/)
+- **Deployed version:** Not deployed. The project runs on `localhost:7070` (see [Running the project](#running-the-project)).
 
-## Getting started
+## Architecture
 
-### Requirements
+### High-level description
 
-- Java 17 or newer
-- Maven
-- PostgreSQL running on `localhost:5432`
-- A free RAWG API key from [rawg.io/apidocs](https://rawg.io/apidocs)
+Build Guide is a backend-only REST API. Clients send HTTP requests with JSON bodies to a Javalin server, which checks the JWT, runs the business rules and stores data in PostgreSQL through Hibernate. Game data (names, release dates, cover images) is imported from the external [RAWG](https://rawg.io/apidocs) API.
 
-### 1. Create the database
+```mermaid
+flowchart LR
+    Client["Client<br/>(IntelliJ HTTP Client, frontend)"]
+    subgraph API["Javalin API"]
+        direction TB
+        Security["SecurityController<br/>authenticate + authorize"]
+        Routes["Routes"]
+        Controllers["Controllers"]
+        Services["Services"]
+        DAOs["DAOs"]
+        Rawg["RawgClient"]
+        Security --> Routes --> Controllers --> Services
+        Services --> DAOs
+        Services --> Rawg
+    end
+    DB[("PostgreSQL")]
+    RAWG["RAWG API"]
 
-```sql
-CREATE DATABASE build_guide;
-CREATE USER build_guide_user WITH PASSWORD 'choose-a-password';
-GRANT ALL PRIVILEGES ON DATABASE build_guide TO build_guide_user;
-\c build_guide
-GRANT ALL ON SCHEMA public TO build_guide_user;
+    Client -- "JSON + JWT" --> Security
+    DAOs -- "JPA / Hibernate" --> DB
+    Rawg -- "HttpClient" --> RAWG
 ```
 
-### 2. Add your configuration
+### Application structure
 
-Copy `src/main/resources/config.properties.example` to `src/main/resources/config.properties` and fill in the values:
+The code is split into layers, each in its own package under `mikkelmattern`:
 
-| Key | What it is |
+| Package | Responsibility |
 |---|---|
-| `DB_NAME` | The database name, e.g. `build_guide` |
-| `DB_USERNAME` | The database user |
-| `DB_PASSWORD` | The database user's password |
-| `SECRET_KEY` | The secret used to sign JWTs. Use a long random string (at least 32 characters) |
-| `RAWG_API_KEY` | Your RAWG API key |
+| `routes` | Maps each URL and HTTP method to a controller method, and the roles it requires |
+| `controller` | Reads path parameters, query parameters and the JSON body from the Javalin `Context`, calls a service and writes the response |
+| `services` | Business rules: who may see or change what, validation, cascading reveals |
+| `DAOs` | Database access with `EntityManager` and JPQL. No business rules |
+| `entities` | JPA entities mapped to the database tables |
+| `DTOs`, `records` | What is sent to and from the API, so entities are never exposed directly |
+| `mappers` | Converts between entities and DTOs, and builds the node tree |
+| `security` | JWT creation and verification, login, access checks |
+| `clients` | `RawgClient`, which calls the RAWG API |
+| `config` | Javalin and Hibernate setup |
+| `utils` | `TreeUtil` for subtrees, and reading `config.properties` |
 
-`config.properties` is in `.gitignore`, so it is never committed.
+### Important architectural decisions
 
-### 3. Run it
+- **A self-referencing node tree.** A `Node` has a `parent` and `children`, so a guide can follow any game's own structure at any depth, instead of fixed levels like act → location → section.
+- **Subtrees in memory.** Revealing, hiding, moving and deleting all work on a node's whole subtree. `TreeUtil.collectSubtreeIds` loads the guide's nodes in one query and walks the tree in memory, instead of one query per level. It's also protected against loops in the data.
+- **Content is hidden on the server.** A node's `content` is sent as `null` until the reader has revealed it, so spoilers never reach the client before the reader asks for them.
+- **Two orders, one tree.** Story order and fastest route use the same data, sorted by `storyOrderNumber` or `priorityNumber`. Switching modes never changes what has been revealed.
+- **Saved and guest reveals.** Logged-in users' reveals are saved in the database. Guests' reveals are kept in the session, so the site works without an account.
+- **Stateless authentication with JWT.** The server keeps no login sessions. Every request carries a signed token with the user's id and roles.
+- **Drafts are hidden with 404.** Unpublished guides give 404 instead of 403 to other users, so they can't tell that a draft exists.
+- **Rules in the services.** The DAOs only read and write data. All access rules live in the services, which keeps them in one place and makes the DAOs reusable.
+- **Shallow nested URLs.** A node is created under its guide (`POST /guides/{guideId}/nodes`), but updated and deleted by its own id (`/nodes/{id}`), since node ids are unique.
 
-Run `Main` from IntelliJ, or:
+### Technologies
 
-```
-mvn clean package
-java -jar target/<jar-name>.jar
-```
-
-The API starts on **http://localhost:7070/api**. A list of every route is at **http://localhost:7070/api/routes**.
-
-> **Note:** `hibernate.hbm2ddl.auto` is set to `create`, so the database is **emptied on every start**. On startup, an admin user is created:
->
-> | Username | Password | Roles |
-> |---|---|---|
-> | `admin` | `test123` | ADMIN, USER |
-
-### Running deployed
-
-If the environment variable `DEPLOYED` is set, the database connection is read from environment variables instead of `config.properties`: `CONNECTION_STR` (e.g. `jdbc:postgresql://db:5432/`), `DB_NAME`, `DB_USERNAME` and `DB_PASSWORD`.
-
-## Authentication
-
-1. Create a user with `POST /api/users`.
-2. Log in with `POST /api/auth/login`. The response contains a JWT.
-3. Send the token on every request that needs it:
-   ```
-   Authorization: Bearer <token>
-   ```
-
-Tokens expire after **30 minutes**. There is no logout endpoint, since JWTs are stateless: the client logs out by throwing the token away.
-
-Open routes (`ANYONE`) work without a token. If a token is sent anyway, the user is still recognized, so a logged-in reader gets their own saved reveals.
-
-### Roles
-
-| Role | Can |
+| Area | Technology |
 |---|---|
-| Guest (no token) | Browse published guides and games, and reveal sections. Reveals last only for the session |
-| `USER` | Everything a guest can, plus saved reveals, and create and edit their own guides |
-| `ADMIN` | Everything, including managing users and roles, importing games, and editing or unpublishing any guide |
+| Language | Java 17 |
+| Web framework | Javalin 7 |
+| Persistence | JPA with Hibernate 7, PostgreSQL, HikariCP connection pool |
+| JSON | Jackson |
+| Security | JWT (signed with HMAC-SHA256), BCrypt password hashing |
+| External API | RAWG, called with Java's `HttpClient` |
+| Boilerplate | Lombok |
+| Testing | JUnit, IntelliJ HTTP Client |
+| Build | Maven |
 
-## Endpoints
+## Data Model
 
-All paths start with `/api`.
+### ERD
 
-### Auth and users
+```mermaid
+erDiagram
+    USERS ||--o{ USER_ROLES : has
+    USERS ||--o{ GUIDES : writes
+    USERS ||--o{ SAVED_GUIDES : saves
+    GUIDES ||--o{ SAVED_GUIDES : "saved by"
+    GAMES ||--o{ GUIDES : has
+    GUIDES ||--o{ NODES : contains
+    NODES |o--o{ NODES : "parent of"
+    USERS ||--o{ REVEALS : makes
+    NODES ||--o{ REVEALS : "revealed in"
+
+    USERS {
+        bigint id PK
+        varchar username UK
+        varchar email UK
+        varchar hashed_password
+    }
+    USER_ROLES {
+        bigint user_id FK
+        varchar role "ADMIN or USER"
+    }
+    GAMES {
+        bigint id PK
+        bigint rawg_id UK
+        varchar name
+        varchar cover_image_url
+        date released
+    }
+    GUIDES {
+        bigint id PK
+        varchar title
+        boolean published
+        timestamp created_at
+        timestamp updated_at
+        bigint author_id FK
+        bigint game_id FK
+    }
+    NODES {
+        bigint id PK
+        varchar title
+        text content
+        int priority_number
+        int story_order_number
+        bigint guide_id FK
+        bigint parent_id FK "null for top-level nodes"
+    }
+    REVEALS {
+        bigint id PK
+        bigint user_id FK
+        bigint node_id FK
+        timestamp revealed_at
+    }
+    SAVED_GUIDES {
+        bigint user_id FK
+        bigint guide_id FK
+    }
+```
+
+### Entities and relationships
+
+- **User:** a person with a unique username and email, and a BCrypt-hashed password. Roles are stored in `user_roles` with `@ElementCollection` and `@Enumerated(EnumType.STRING)`.
+- **Game:** a game imported from RAWG. `rawgId` is unique, so the same game can't be imported twice.
+- **Guide:** a guide for a game, written by one user (`@ManyToOne author`). It starts as a draft (`published = false`). `createdAt` and `updatedAt` are set automatically with `@PrePersist` and `@PreUpdate`.
+- **Node:** a section in a guide. It belongs to one guide (`@ManyToOne guide`) and has an optional parent node (`@ManyToOne parent`, `@OneToMany children`), which makes the tree. `priorityNumber` and `storyOrderNumber` decide the order in each reading mode. Deleting a guide removes its nodes through `cascade = ALL` and `orphanRemoval = true`.
+- **Reveal:** one user's reveal of one node. It is its own entity, with a unique constraint on `(user_id, node_id)`, so each user has their own progress and the same node can't be revealed twice. `@OnDelete(CASCADE)` lets the database remove reveals when their user or node is deleted.
+- **Saved guides:** a `@ManyToMany` between users and guides, where `User.savedGuides` is the owning side. It's prepared in the model, but there are no endpoints for it yet.
+
+## API
+
+### Overview
+
+- **Base URL:** `http://localhost:7070/api`
+- **Format:** JSON in and out
+- **Authentication:** log in with `POST /auth/login` to get a JWT, then send `Authorization: Bearer <token>`. Tokens expire after 30 minutes.
+- **Roles:** guests (no token) can browse published guides and reveal sections in their session. `USER` can also save reveals and write guides. `ADMIN` can do everything, including managing users and importing games.
+- **Route overview:** every route and its roles is listed at `GET /routes`.
+- **Errors:** returned as JSON with a status code and a message, e.g. `{ "status": 404, "msg": "Could not find the guide" }`.
+
+### Status codes
+
+| Code | Used when |
+|---|---|
+| 200 OK | A read, update or delete succeeded |
+| 201 Created | A user, guide, node or game was created |
+| 204 No Content | A reveal or hide succeeded (no body) |
+| 400 Bad Request | Invalid input, e.g. a missing title, or moving a node under itself |
+| 401 Unauthorized | No token, an invalid token, or wrong login |
+| 403 Forbidden | Logged in, but not the owner or an admin |
+| 404 Not Found | The resource doesn't exist, or is a draft you may not see |
+| 409 Conflict | The username, email or game is already taken or imported |
+
+### Important endpoints
+
+**Auth and users**
 
 | Method | Path | Role | Description |
 |---|---|---|---|
 | POST | `/auth/login` | Anyone | Log in and get a JWT |
 | GET | `/auth/me` | User | The logged-in user |
 | POST | `/users` | Anyone | Create a user |
-| GET | `/users` | Admin | All users |
-| GET | `/users/{id}` | Admin | One user |
-| PUT | `/users/{id}` | User (self) or admin | Update a user |
-| DELETE | `/users/{id}` | User (self) or admin | Delete a user and their reveals |
-| POST | `/users/{id}/roles/{role}` | Admin | Give a user a role |
-| DELETE | `/users/{id}/roles/{role}` | Admin | Remove a role from a user |
+| PUT / DELETE | `/users/{id}` | Self or admin | Update or delete a user |
+| POST / DELETE | `/users/{id}/roles/{role}` | Admin | Give or remove a role |
 
-### Games
+**Games**
 
 | Method | Path | Role | Description |
 |---|---|---|---|
 | GET | `/games` | Anyone | All imported games |
-| GET | `/games/{id}` | Anyone | One game |
 | GET | `/games/{id}/guides` | Anyone | Published guides for a game |
-| GET | `/games/search?query=...` | Admin | Search RAWG for games |
-| POST | `/games/import/{rawgId}` | Admin | Import a game from RAWG. Gives 409 if it's already imported |
+| GET | `/games/search?query=...` | Admin | Search RAWG |
+| POST | `/games/import/{rawgId}` | Admin | Import a game from RAWG |
 
-### Guides
+**Guides**
 
 | Method | Path | Role | Description |
 |---|---|---|---|
 | GET | `/guides` | Anyone | All published guides |
-| GET | `/guides/mine` | User | The logged-in user's own guides, drafts included |
-| POST | `/guides` | User | Create a guide. It starts as a draft |
-| GET | `/guides/{id}?mode=STORY\|FASTEST` | Anyone | A guide with its node tree. Drafts give 404 unless you're the author or an admin |
-| PUT | `/guides/{id}` | Author or admin | Update a guide |
-| DELETE | `/guides/{id}` | Author or admin | Delete a guide with all its nodes and reveals |
-| POST | `/guides/{id}/publish` | Author or admin | Publish a guide |
-| DELETE | `/guides/{id}/publish` | Author or admin | Make a guide a draft again |
+| GET | `/guides/mine` | User | The user's own guides, drafts included |
+| POST | `/guides` | User | Create a guide (starts as a draft) |
+| GET | `/guides/{id}?mode=STORY\|FASTEST` | Anyone | A guide with its node tree and the reader's reveals |
+| PUT / DELETE | `/guides/{id}` | Author or admin | Update or delete a guide |
+| POST / DELETE | `/guides/{id}/publish` | Author or admin | Publish or unpublish a guide |
 
-`mode` defaults to `STORY`, which sorts sections by `storyOrderNumber`. `FASTEST` sorts by `priorityNumber`. Switching modes never changes what is revealed.
-
-### Nodes
+**Nodes and reveals**
 
 | Method | Path | Role | Description |
 |---|---|---|---|
-| POST | `/guides/{guideId}/nodes` | Author or admin | Add a node, at the top level or under `parentId` |
-| PUT | `/nodes/{id}` | Author or admin | Update a node. Setting `parentId` moves it with its whole subtree |
+| POST | `/guides/{guideId}/nodes` | Author or admin | Add a node, optionally under `parentId` |
+| PUT | `/nodes/{id}` | Author or admin | Update a node. Setting `parentId` moves its whole subtree |
 | DELETE | `/nodes/{id}` | Author or admin | Delete a node and everything under it |
-
-A node can't be moved under itself or one of its own descendants, or into another guide (400).
-
-### Reveals
-
-| Method | Path | Role | Description |
-|---|---|---|---|
 | POST | `/nodes/{id}/reveal` | Anyone | Reveal a node and everything under it |
 | DELETE | `/nodes/{id}/reveal` | Anyone | Hide a node and everything under it again |
 | DELETE | `/guides/{id}/reveals` | Anyone | Reset all reveals for a guide |
 
-Reveals are saved in the database for logged-in users, and kept in the session for guests. Each user's reveals are their own. Content of a node that isn't revealed is sent as `null`, so it never reaches the client before the reader asks for it.
+### Example requests and responses
 
-### Errors
+**Log in**
 
-Errors are returned as JSON with a status code and a message:
+```http
+POST /api/auth/login
+Content-Type: application/json
+
+{ "username": "author", "password": "test123" }
+```
 
 ```json
-{ "status": 404, "msg": "Could not find the guide" }
+{ "token": "eyJhbGciOiJIUzI1NiJ9...", "username": "author" }
 ```
 
-## How it works
+**Add a node under another node**
 
-- **Node tree.** `Node` references itself through `parent` and `children`, so a guide can have any structure and depth. There are no fixed levels like act → location → section.
-- **Cascading reveals.** Revealing, hiding, moving and deleting a node all work on its whole subtree. `TreeUtil.collectSubtreeIds` loads the guide's nodes in one query and walks the tree in memory, so it works at any depth without one query per level. It's also safe against loops in the data.
-- **Drafts.** Guides start unpublished. Unpublished guides are left out of every list, and `GET /guides/{id}` gives 404 rather than 403, so other users can't tell that a draft exists.
-- **Layers.** Routes → controllers → services → DAOs. Access rules live in the services; the DAOs only read and write data.
+```http
+POST /api/guides/1/nodes
+Authorization: Bearer <token>
+Content-Type: application/json
 
-## Testing
-
-### HTTP tests
-
-The `http/` folder has IntelliJ HTTP Client tests with assertions for every endpoint, including the error cases. `Auth.http` sets up users, games and a sample guide, and every other file runs it first.
-
-| File | Covers |
-|---|---|
-| `Auth.http` | Setup: logins, game imports and a published sample guide with a node tree |
-| `Users.http` | Users, login and roles |
-| `Guides.http` | Games and guides |
-| `Nodes.http` | Creating, updating, moving and deleting nodes |
-| `Reveals.http` | Revealing, hiding and resetting, for users and guests |
-| `Publish.http` | Drafts, publishing, unpublishing and `/guides/mine` |
-
-Restart the server before a run to start from an empty database, then use **Run All Requests in File**.
-
-### Unit tests
-
-`TreeUtilTest` tests the subtree logic that the cascades depend on: subtrees at any depth, leaves, deep chains, wide trees, list order and loops in the data.
-
-```
-mvn test
+{ "title": "Limgrave", "content": "The starting area", "parentId": 1, "storyOrderNumber": 1, "priorityNumber": 1 }
 ```
 
-## User stories
+```json
+{ "id": 2, "title": "Limgrave", "priorityNumber": 1, "storyOrderNumber": 1, "revealed": true, "content": "The starting area", "children": [] }
+```
 
-The full user stories are in `Build Guide — User Stories.md`.
+**Reveal a node, then read the guide**
 
-**Implemented:**
+```http
+POST /api/nodes/2/reveal
+Authorization: Bearer <token>
+```
 
-- **Browsing:** list games (B1), guides for a game (B2) and a guide's structure without spoilers (B3)
-- **Revealing:** single sections (R1), whole nodes (R2), cascade at any depth (R3), hiding again (R5) and resetting a guide (R7)
-- **Ordering:** story order (O1) and fastest route (O2)
-- **Accounts:** sign-up (A1), login (A2), saved reveals (A3), guest reveals in the session (A4) and deleting an account (A7)
-- **Authoring:** create guides (W1), any tree structure (W2), content (W3), both ordering numbers (W4), edit, move and delete nodes (W6) and publish/unpublish (W7)
-- **Admin:** import games from RAWG (M1), manage roles (M2) and unpublish any guide (M3)
+Response: `204 No Content`. Limgrave and everything under it is now revealed for this user.
 
-**Not implemented, and why:**
+```http
+GET /api/guides/1?mode=STORY
+Authorization: Bearer <token>
+```
 
-| Story | Reason |
-|---|---|
-| B4, O3, R4 | Belong in a frontend: collapsing branches, a one-time warning and a confirmation dialog |
-| B5 Search | Deprioritized. Guides can be browsed per game |
-| R6 Progress counts | The `revealed` flag is on every node, so a client can count. No revealed/total counts are calculated in the API |
-| O4 Remembered mode | The mode is sent per request with `?mode=` |
-| A5 Merge guest reveals on login | Deprioritized |
-| A6 Password reset | Needs an email service |
-| W5 Spoiler titles, W8 Preview | Deprioritized |
-| P1–P3 Interactive map | Planned as a later phase |
+```json
+{
+  "id": 1,
+  "title": "Setup guide",
+  "published": true,
+  "authorUsername": "author",
+  "gameId": 1,
+  "nodes": [
+    {
+      "id": 1, "title": "Act 1", "priorityNumber": 2, "storyOrderNumber": 1,
+      "revealed": false, "content": null,
+      "children": [
+        {
+          "id": 2, "title": "Limgrave", "priorityNumber": 1, "storyOrderNumber": 1,
+          "revealed": true, "content": "The starting area",
+          "children": [
+            { "id": 3, "title": "Church of Elleh", "priorityNumber": 1, "storyOrderNumber": 1,
+              "revealed": true, "content": "Smithing table and merchant", "children": [] }
+          ]
+        },
+        { "id": 4, "title": "Stormveil Castle", "priorityNumber": 3, "storyOrderNumber": 2,
+          "revealed": false, "content": null, "children": [] }
+      ]
+    }
+  ]
+}
+```
 
-**Differences from the stories:**
+Act 1 and Stormveil stay hidden, since only Limgrave's subtree was revealed. The response also contains `createdAt` and `updatedAt`, left out here.
 
-- There is no separate author role. Any logged-in `USER` can write guides, and only the guide's author or an admin can change it.
-- `GET /games` lists every imported game, not only games with at least one published guide (B1).
+## User Stories
+
+The full set, with acceptance criteria and priorities, is in `Build Guide — User Stories.md`. These guided the development:
+
+**Browsing and reading**
+- As a guest, I want to see a list of games with guides, so that I can find the game I'm playing.
+- As a guest, I want to see a guide's structure without content, so that I know what it covers without spoilers.
+- As a reader, I want to reveal a single section, so that I only see what I've reached in the game.
+- As a reader, I want revealing a milestone to reveal everything under it, so that I don't click every section.
+- As a reader, I want to hide a section again, so that I can undo a mistaken reveal.
+- As a reader, I want to read a guide in story order or as the fastest route, so that I can choose between avoiding spoilers and getting the best items first.
+
+**Accounts**
+- As a guest, I want to create an account and log in, so that my progress is saved across devices.
+- As a guest, I want reveals to work during my visit, so that I can use the site without an account.
+
+**Authoring**
+- As an author, I want to build a guide as a tree of any depth, so that it follows the game's own structure.
+- As an author, I want to set both ordering numbers per section, so that both reading modes sort correctly.
+- As an author, I want to edit, move and delete nodes, so that I can restructure the guide.
+- As an author, I want to publish or unpublish a guide, so that readers only see finished work.
+
+**Administration**
+- As an admin, I want to import games, so that authors can write guides for them.
+- As an admin, I want to manage roles and unpublish any guide, so that I control the site.
+
+All 19 "Must" stories are implemented, plus R5, R7, A7, M2 and M3. Stories left for later are mainly frontend features (collapsing branches, confirmation dialogs), password reset, spoiler titles and the interactive map.
+
+## Running the project
+
+1. Create a PostgreSQL database, e.g. `build_guide`, and a user with access to it.
+2. Copy `src/main/resources/config.properties.example` to `config.properties` in the same folder, and fill in `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD`, `SECRET_KEY` (a long random string) and `RAWG_API_KEY` (free from [rawg.io/apidocs](https://rawg.io/apidocs)).
+3. Run `Main`. The API starts on `http://localhost:7070/api`.
+
+The database is recreated on every start (`hbm2ddl.auto=create`), and an admin user `admin` / `test123` is created.
+
+**Tests:** the `http/` folder has IntelliJ HTTP Client tests for every endpoint. `Auth.http` sets up users, games and a sample guide, and the other files run it first. `TreeUtilTest` unit-tests the subtree logic.

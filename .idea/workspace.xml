@@ -4,15 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="30ccf195-beee-451c-b423-c20e3c2031d1" name="Changes" comment="Add published/draft status for guides&#10;&#10;- Add a published field to Guide (false by default) and include it in GuideDTO and GuideSummaryDTO&#10;- Add POST and DELETE /guides/{id}/publish to publish and unpublish a guide (author or admin)&#10;- Hide drafts from GET /guides/{id} with a 404 unless the user is the author or an admin&#10;- Only return published guides from GET /guides and GET /games/{id}/guides&#10;- Add GET /guides/mine, which returns the logged-in user's guides, drafts included&#10;- Add SecurityService.hasAccess, a boolean version of verifyAccess that also handles guests&#10;- Add tests for deleting a guide with a full node tree and saved reveals">
-      <change afterPath="$PROJECT_DIR$/http/Publish.http" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/config.properties.example" afterDir="false" />
+    <list default="true" id="30ccf195-beee-451c-b423-c20e3c2031d1" name="Changes" comment="Added README.md and TreeUtilTest.java">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/http/Auth.http" beforeDir="false" afterPath="$PROJECT_DIR$/http/Auth.http" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/http/Guides.http" beforeDir="false" afterPath="$PROJECT_DIR$/http/Guides.http" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/controller/GuideController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/controller/GuideController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/routes/GuideRoutes.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/routes/GuideRoutes.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/security/SecurityService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/security/SecurityService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/mikkelmattern/utils/TreeUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/mikkelmattern/utils/TreeUtil.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -94,6 +90,7 @@
     "HTTP Request.Users | Get own profile.executor": "Run",
     "HTTP Request.Users | Get user with ID.executor": "Run",
     "HTTP Request.Users | Login as author.executor": "Run",
+    "JUnit.TreeUtilTest.executor": "Run",
     "JavaScript Debug.Guides.html.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -111,7 +108,7 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "editor.preferences.completion",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
     "to.speed.mode.migration.done": "true",
     "vue.rearranger.settings.migration": "true"
   }
@@ -125,10 +122,14 @@
       <recent name="C:\Datamatiker\Github\3.sem\build-guide-project\src\main\java\mikkelmattern" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Datamatiker\Github\3.sem\build-guide-project" />
+      <recent name="C:\Datamatiker\Github\3.sem\build-guide-project\src\test\java" />
       <recent name="C:\Datamatiker\Github\3.sem\build-guide-project\http" />
       <recent name="C:\Datamatiker\Github\3.sem\build-guide-project\HTML" />
       <recent name="C:\Datamatiker\Github\3.sem\build-guide-project\Users.http" />
-      <recent name="C:\Datamatiker\Github\3.sem\build-guide-project" />
+    </key>
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="mikkelmattern.utils" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
       <recent name="mikkelmattern.utils" />
@@ -141,7 +142,6 @@
         <entry key="HttpClient.HttpRequestRunConfigurationType">
           <value>
             <map>
-              <entry key="All in Guides" value="STOPPED" />
               <entry key="All in Nodes" value="STOPPED" />
               <entry key="All in Publish" value="STOPPED" />
               <entry key="All in Reveals" value="STOPPED" />
@@ -152,16 +152,13 @@
       </map>
     </option>
   </component>
-  <component name="RunManager" selected="Application.Main">
+  <component name="RunManager" selected="JUnit.TreeUtilTest">
     <configuration name="Main" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="mikkelmattern.Main" />
       <module name="build-guide-project (1)" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
-    </configuration>
-    <configuration name="All in Guides" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" path="$PROJECT_DIR$/http/Guides.http">
-      <method v="2" />
     </configuration>
     <configuration name="All in Nodes" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" path="$PROJECT_DIR$/http/Nodes.http">
       <method v="2" />
@@ -175,13 +172,28 @@
     <configuration name="All in Users" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" path="$PROJECT_DIR$/http/Users.http">
       <method v="2" />
     </configuration>
+    <configuration name="TreeUtilTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="build-guide-project (1)" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="mikkelmattern.utils.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="mikkelmattern.utils" />
+      <option name="MAIN_CLASS_NAME" value="mikkelmattern.utils.TreeUtilTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.TreeUtilTest" />
         <item itemvalue="HTTP Request.All in Publish" />
         <item itemvalue="HTTP Request.All in Users" />
         <item itemvalue="HTTP Request.All in Reveals" />
         <item itemvalue="HTTP Request.All in Nodes" />
-        <item itemvalue="HTTP Request.All in Guides" />
       </list>
     </recent_temporary>
   </component>
@@ -203,7 +215,7 @@
       <workItem from="1787324807367" duration="28840000" />
       <workItem from="1790151521601" duration="662000" />
       <workItem from="1791831742806" duration="9153000" />
-      <workItem from="1792405158334" duration="79757000" />
+      <workItem from="1792405158334" duration="85529000" />
     </task>
     <task id="LOCAL-00001" summary="Added entire login flow with BCrypt hashing of password and signed tokens">
       <option name="closed" value="true" />
@@ -293,7 +305,23 @@
       <option name="project" value="LOCAL" />
       <updated>1793306632850</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="Fix publish endpoints and add publish tests&#10;&#10;- Read the guide id from the &quot;id&quot; path parameter in publish and unpublish (was &quot;gameId&quot;)&#10;- Return false from SecurityService.hasAccess for guests, so a guest opening a draft gets 404 instead of 500&#10;- Register GET /guides/mine before /guides/{id}, so &quot;mine&quot; isn't read as an id&#10;- Add Publish.http with tests for drafts, publishing, unpublishing and /guides/mine&#10;- Publish the setup guide in Auth.http and the new guide in Guides.http, since guides now start as drafts&#10;- Add config.properties.example with the required keys and no values">
+      <option name="closed" value="true" />
+      <created>1793308809485</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1793308809485</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Added README.md and TreeUtilTest.java">
+      <option name="closed" value="true" />
+      <created>1793309499616</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1793309499616</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -310,6 +338,12 @@
     <MESSAGE value="Added the reveal flow" />
     <MESSAGE value="Added external rawg api and added a game entity, controller, service, dto, dao and RawgClient" />
     <MESSAGE value="Add published/draft status for guides&#10;&#10;- Add a published field to Guide (false by default) and include it in GuideDTO and GuideSummaryDTO&#10;- Add POST and DELETE /guides/{id}/publish to publish and unpublish a guide (author or admin)&#10;- Hide drafts from GET /guides/{id} with a 404 unless the user is the author or an admin&#10;- Only return published guides from GET /guides and GET /games/{id}/guides&#10;- Add GET /guides/mine, which returns the logged-in user's guides, drafts included&#10;- Add SecurityService.hasAccess, a boolean version of verifyAccess that also handles guests&#10;- Add tests for deleting a guide with a full node tree and saved reveals" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add published/draft status for guides&#10;&#10;- Add a published field to Guide (false by default) and include it in GuideDTO and GuideSummaryDTO&#10;- Add POST and DELETE /guides/{id}/publish to publish and unpublish a guide (author or admin)&#10;- Hide drafts from GET /guides/{id} with a 404 unless the user is the author or an admin&#10;- Only return published guides from GET /guides and GET /games/{id}/guides&#10;- Add GET /guides/mine, which returns the logged-in user's guides, drafts included&#10;- Add SecurityService.hasAccess, a boolean version of verifyAccess that also handles guests&#10;- Add tests for deleting a guide with a full node tree and saved reveals" />
+    <MESSAGE value="Fix publish endpoints and add publish tests&#10;&#10;- Read the guide id from the &quot;id&quot; path parameter in publish and unpublish (was &quot;gameId&quot;)&#10;- Return false from SecurityService.hasAccess for guests, so a guest opening a draft gets 404 instead of 500&#10;- Register GET /guides/mine before /guides/{id}, so &quot;mine&quot; isn't read as an id&#10;- Add Publish.http with tests for drafts, publishing, unpublishing and /guides/mine&#10;- Publish the setup guide in Auth.http and the new guide in Guides.http, since guides now start as drafts&#10;- Add config.properties.example with the required keys and no values" />
+    <MESSAGE value="Added README.md and TreeUtilTest.java" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added README.md and TreeUtilTest.java" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

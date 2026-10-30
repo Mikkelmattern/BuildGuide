@@ -35,8 +35,9 @@ public final class TreeUtil {
 
         while (!toVisit.isEmpty()) {
             Long id = toVisit.pop();
-            result.add(id);
-            toVisit.addAll(childrenByParent.getOrDefault(id, List.of()));
+            if (result.add(id)) {
+                toVisit.addAll(childrenByParent.getOrDefault(id, List.of()));
+            }
         }
         return result;
     }
